@@ -169,7 +169,7 @@ function toast(m){var e=document.getElementById('TT');e.textContent=m;e.style.di
 function dU(s){if(!s)return 999;return Math.ceil((new Date(s+'T00:00:00').getTime()-new Date(new Date().toDateString()).getTime())/86400000)}
 function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTML=d.pocs.map(function(p){return'<option>'+p+'</option>'}).join('')}
 
-(function(){updateLoginDropdown(){var d=gD();CE=d.currentEvent||Object.keys(d.events)[0];var s=localStorage.getItem('hve18_u');if(s&&d.pocs.indexOf(s)>-1){U=s;document.getElementById('LS').style.display='none';document.getElementById('UB').textContent='POC: '+U;setTimeout(initApp,0)}})();
+(function(){updateLoginDropdown();var d=gD();CE=d.currentEvent||Object.keys(d.events);var s=localStorage.getItem('hve18_u');if(s&&d.pocs.indexOf(s)>-1){U=s;document.getElementById('LS').style.display='none';document.getElementById('UB').textContent='POC: '+U;setTimeout(initApp,0)}})();
 
 function sD(d){
 localStorage.setItem('hve18',JSON.stringify(d));
