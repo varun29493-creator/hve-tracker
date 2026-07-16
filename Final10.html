@@ -287,7 +287,7 @@ var goLive=cf.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].ta
 var pct=tc?Math.round(goLive/tc*100):0;
 var pendConf=br.filter(function(b){return b[wf].participation==='Pending Confirmation'});
 document.getElementById('DK').innerHTML=ki(br.length,'Total Brands','')+ki(tc,'Confirmed','gn')+ki(srcD+'/'+tc,'Sourced',srcD===tc?'gn':'')+ki(stpD+'/'+tc,'Setups Done',stpD===tc?'gn':'')+ki(tagD+'/'+tc,'Tagged',tagD===tc?'gn':'')+ki(goLive+'/'+tc,'Go-live Secured','gn')+ki(pct+'%','Ready',pct>=75?'gn':pct>=50?'or':'rd')+ki(days<=0?'LIVE':days+'d','Go-Live',days<=3?'rd':days<=7?'or':'gn');
-var h='<div class="g2"><div class="cd"><div class="ct">Pod Progress (Category-wise)</div>';
+var h='<div class="g2">';if(R==='manager')<div class="cd"><div class="ct">Pod Progress (Category-wise)</div>';
 CATS.forEach(function(cat){var cb=cf.filter(function(b){return b.category===cat});if(!cb.length)return;var dn=cb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100))});
 h+='</div><div class="cd"><div class="ct">POC Progress</div>';
 if(R==='manager'){var d2=gD();d2.pocs.forEach(function(poc){var pb=cf.filter(function(b){return b.poc===poc});if(!pb.length)return;var dn=pb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;h+=pr(poc+' ('+dn+'/'+pb.length+')',Math.round(dn/pb.length*100))})}else{var myDn=cf.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;if(tc)h+=pr('My Progress ('+myDn+'/'+tc+')',Math.round(myDn/tc*100));else h+='<p style="color:var(--m)">No confirmed brands</p>'}
