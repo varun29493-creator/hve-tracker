@@ -162,7 +162,11 @@ function seed(){return[
 {id:13,brand:'Lakme',category:'CPG',poc:'Vennela',am:'Divya K',preArt:{participation:'Confirmed',followup:0,sourcing:'Completed',setup:'Shell Complete',setupBy:'CCS',tagging:'Completed',tagBy:'CCS',qaDone:'Yes'},art:{participation:'Confirmed',followup:0,sourcing:'In Progress',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'}},
 {id:14,brand:'OnePlus',category:'CEPC',poc:'Vikas',am:'Karan M',preArt:{participation:'Confirmed',followup:1,sourcing:'In Progress',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'},art:{participation:'Confirmed',followup:0,sourcing:'Pending',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'}},
 {id:15,brand:'Wildcraft',category:'Softlines',poc:'Khushi',am:'Tanya S',preArt:{participation:'Not Participating',followup:0,sourcing:'Pending',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'},art:{participation:'Not Participating',followup:0,sourcing:'Pending',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'}}]}
-
+function gE(){return gD().events[CE]||null}
+function gB(){var e=gE();return e?e.brands:[]}
+function dW(){return{participation:'Pending Confirmation',followup:0,sourcing:'Pending',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'}}
+function toast(m){var e=document.getElementById('TT');e.textContent=m;e.style.display='block';setTimeout(function(){e.style.display='none'},2200)}
+function dU(s){if(!s)return 999;return Math.ceil((new Date(s+'T00:00:00').getTime()-new Date(new Date().toDateString()).getTime())/86400000)}
 (function(){var d=gD();CE=d.currentEvent||Object.keys(d.events)[0];var s=localStorage.getItem('hve18_u');if(s&&d.pocs.indexOf(s)>-1){U=s;document.getElementById('LS').style.display='none';document.getElementById('UB').textContent='POC: '+U;setTimeout(initApp,0)}})();
 
 function sD(d){
