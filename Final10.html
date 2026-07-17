@@ -250,7 +250,9 @@ var fs=document.getElementById('FS'),sv=fs?fs.value.toLowerCase():'';
 if(sv)br=br.filter(function(b){return(b.brand+b.poc+b.am+b.category).toLowerCase().indexOf(sv)>-1});
 Object.keys(FLT).forEach(function(col){br=br.filter(function(b){return FLT[col].indexOf(gCV(b,col))>-1})});
 var all=gB();
-document.getElementById('SB').innerHTML='<span><b>'+all.length+'</b> total</span><span><b>'+all.filter(function(b){return b.preArt.participation==='Confirmed'}).length+'</b> Pre-ART</span><span><b>'+all.filter(function(b){return b.art.participation==='Confirmed'}).length+'</b> ART</span><span>Showing: <b>'+br.length+'</b></span>';
+var statBr=R==='manager'?all:all.filter(function(b){return b.poc===U});
+document.getElementById('SB').innerHTML='<span><b>'+statBr.length+'</b> total</span><span><b>'+statBr.filter(function(b){return b.preArt.participation==='Confirmed'}).length+'</b> Pre-ART</span><span><b>'+statBr.filter(function(b){return b.art.participation==='Confirmed'}).length+'</b> ART</span><span>Showing: <b>'+br.length+'</b></span>';
+
 if(SEL.length&&R==='manager'){document.getElementById('BB').classList.remove('hid');document.getElementById('BC').textContent=SEL.length+' selected'}else document.getElementById('BB').classList.add('hid');
 var fc=function(col){return' <span class="ft" onclick="openFilter(\''+col+'\',event)">&#9660;</span>'};
 var th='<tr>';
