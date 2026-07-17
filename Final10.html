@@ -249,7 +249,8 @@ document.getElementById('SB').innerHTML='<span><b>'+all.length+'</b> total</span
 if(SEL.length&&R==='manager'){document.getElementById('BB').classList.remove('hid');document.getElementById('BC').textContent=SEL.length+' selected'}else document.getElementById('BB').classList.add('hid');
 var fc=function(col){return' <span class="ft" onclick="openFilter(\''+col+'\',event)">&#9660;</span>'};
 var th='<tr>';
-th+='<th rowspan="2"><input type="checkbox" class="ckb" onchange="selAll(this.checked)"></th>';
+th+='<th rowspan="2"><input type="checkbox" class="ckb" '+(SEL.length&&SEL.length===br.length?'checked':'')+' onchange="selAll(this.checked)"></th>';
+
 
 th+='<th rowspan="2" style="text-align:left;min-width:100px">Brand</th><th rowspan="2"'+(FLT.category?' class="filtered"':'')+'>Category'+fc('category')+'</th><th rowspan="2"'+(FLT.poc?' class="filtered"':'')+'>POC'+fc('poc')+'</th>';
 if(!HP)th+='<th class="thpg" colspan="8">PRE-ART</th>';
