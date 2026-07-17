@@ -276,8 +276,10 @@ function bulkReassign(){if(!SEL.length)return;document.getElementById('BRP').inn
 function doBR(){var p=document.getElementById('BRP').value,d=gD();d.events[CE].brands.forEach(function(b){if(SEL.indexOf(b.id)>-1)b.poc=p});sD(d);SEL=[];document.getElementById('MO2').classList.add('hid');rT();toast('Done!')}
 function bulkPart(wf){if(!SEL.length)return;BWF=wf;document.getElementById('BPT').textContent=wf==='preArt'?'Pre-ART Participation':'ART Participation';document.getElementById('MO3').classList.remove('hid')}
 function doBP(){var v=document.getElementById('BPS').value,d=gD();d.events[CE].brands.forEach(function(b){if(SEL.indexOf(b.id)>-1)b[BWF].participation=v});sD(d);SEL=[];document.getElementById('MO3').classList.add('hid');rT();toast('Done!')}
-function bulkDel()function delSelected(){if(!SEL.length){toast('Select brands first');return}if(!confirm('Delete '+SEL.length+' brand(s)?'))return;var d=gD();d.events[CE].brands=d.events[CE].brands.filter(function(b){return SEL.indexOf(b.id)===-1});sD(d);SEL=[];rT();toast('Deleted!')}
-{if(!SEL.length)return;if(!confirm('Delete '+SEL.length+' brands?'))return;var d=gD();d.events[CE].brands=d.events[CE].brands.filter(function(b){return SEL.indexOf(b.id)===-1});sD(d);SEL=[];rT();toast('Deleted!')}
+
+function bulkDel(){if(!SEL.length)return;if(!confirm('Delete '+SEL.length+' brands?'))return;var d=gD();d.events[CE].brands=d.events[CE].brands.filter(function(b){return SEL.indexOf(b.id)===-1});sD(d);SEL=[];rT();toast('Deleted!')}
+function delSelected(){if(!SEL.length){toast('Select brands first');return}if(!confirm('Delete '+SEL.length+' brand(s)?'))return;var d=gD();d.events[CE].brands=d.events[CE].brands.filter(function(b){return SEL.indexOf(b.id)===-1});sD(d);SEL=[];rT();toast('Deleted!')}
+
 
 function dlCSV(){var br=gB(),c='Brand,Category,POC,AM,PreART_Participation,PreART_Sourcing,PreART_Setup,PreART_SetupBy,PreART_Tagging,PreART_TaggedBy,PreART_QA,ART_Participation,ART_Sourcing,ART_Setup,ART_SetupBy,ART_Tagging,ART_TaggedBy,ART_QA\n';br.forEach(function(b){var p=b.preArt,a=b.art;c+='"'+b.brand+'",'+b.category+','+b.poc+',"'+b.am+'",'+p.participation+','+p.sourcing+','+p.setup+','+(p.setupBy||'-')+','+p.tagging+','+(p.tagBy||'-')+','+p.qaDone+','+a.participation+','+a.sourcing+','+a.setup+','+(a.setupBy||'-')+','+a.tagging+','+(a.tagBy||'-')+','+a.qaDone+'\n'});var bl=new Blob([c],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='HVE_'+CE.replace(/\s/g,'_')+'.csv';a.click();toast('Exported!')}
 
