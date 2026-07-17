@@ -290,10 +290,11 @@ function delSelected(){if(!SEL.length){toast('Select brands first');return}if(!c
 function dlCSV(){var br=gB(),c='Brand,Category,POC,AM,PreART_Participation,PreART_Sourcing,PreART_Setup,PreART_SetupBy,PreART_Tagging,PreART_TaggedBy,PreART_QA,ART_Participation,ART_Sourcing,ART_Setup,ART_SetupBy,ART_Tagging,ART_TaggedBy,ART_QA\n';br.forEach(function(b){var p=b.preArt,a=b.art;c+='"'+b.brand+'",'+b.category+','+b.poc+',"'+b.am+'",'+p.participation+','+p.sourcing+','+p.setup+','+(p.setupBy||'-')+','+p.tagging+','+(p.tagBy||'-')+','+p.qaDone+','+a.participation+','+a.sourcing+','+a.setup+','+(a.setupBy||'-')+','+a.tagging+','+(a.tagBy||'-')+','+a.qaDone+'\n'});var bl=new Blob([c],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='HVE_'+CE.replace(/\s/g,'_')+'.csv';a.click();toast('Exported!')}
 
 
-function rD(){var e=gE();if(!e)return;var wf=DWV,allBr=e.brands;
+function rD(){
+var e=gE();if(!e)return;
+var wf=DWV,allBr=e.brands;
 var br=R==='manager'?allBr:allBr.filter(function(b){return b.poc===U});
 var days=dU(wf==='preArt'?e.preArtDate:e.artDate);
-
 
 var cf=br.filter(function(b){return b[wf].participation==='Confirmed'}),tc=cf.length;
 var srcD=cf.filter(function(b){return b[wf].sourcing==='Completed'}).length;
@@ -302,29 +303,109 @@ var tagD=cf.filter(function(b){return b[wf].tagging==='Completed'}).length;
 var goLive=cf.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;
 var pct=tc?Math.round(goLive/tc*100):0;
 var pendConf=br.filter(function(b){return b[wf].participation==='Pending Confirmation'});
-document.getElementById('DK').innerHTML=ki(br.length,'Total Brands','')+ki(tc,'Confirmed','gn')+ki(srcD+'/'+tc,'Sourced',srcD===tc?'gn':'')+ki(stpD+'/'+tc,'Setups Done',stpD===tc?'gn':'')+ki(tagD+'/'+tc,'Tagged',tagD===tc?'gn':'')+ki(goLive+'/'+tc,'Go-live Secured','gn')+ki(pct+'%','Ready',pct>=75?'gn':pct>=50?'or':'rd')+ki(days<=0?'LIVE':days+'d','Go-Live',days<=3?'rd':days<=7?'or':'gn');
-var h='<div class="g2">';if(R==='manager'){h+='<div class="cd"><div class="ct">Pod Progress (Category-wise)</div>';
-CATS.forEach(function(cat){var cb=cf.filter(function(b){return b.category===cat});if(!cb.length)return;var dn=cb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100))});
-h+='</div>';}
-h+='<div class="cd"><div class="ct">POC Progress</div>';
-if(R==='manager'){var d2=gD();d2.pocs.forEach(function(poc){var pb=cf.filter(function(b){return b.poc===poc});if(!pb.length)return;var dn=pb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;h+=pr(poc+' ('+dn+'/'+pb.length+')',Math.round(dn/pb.length*100))})}else{var myDn=cf.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;if(tc)h+=pr('My Progress ('+myDn+'/'+tc+')',Math.round(myDn/tc*100));else h+='<p style="color:var(--m)">No confirmed brands</p>'}
-h+='</div></div><div class="g2"><div class="cd"><div class="ct">Yet to Confirm ('+pendConf.length+')</div>';
-if(pendConf.length){pendConf.forEach(function(b){h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+'</div>'})}else h+='<p style="color:var(--ok)">All confirmed!</p>';
-h+='</div><div class="cd"><div class="ct">Sourcing Pending</div>';
-var srcPB=cf.filter(function(b){return b[wf].sourcing!=='Completed'});
-if(srcPB.length){srcPB.forEach(function(b){var rk=days<=3?'background:#fdd':days<=5?'background:#fee2cc':days<=7?'background:#fff8e1':'';h+='<div class="ri" style="'+rk+'"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].sourcing+'</span>'+(b[wf].followup>0?' | F/U: '+b[wf].followup:'')+'</div>'})}
-else h+='<p style="color:var(--ok)">All sourced!</p>';
-h+='</div></div><div class="g2"><div class="cd"><div class="ct">Setup Pending</div>';
-h+='</div></div><div class="g2"><div class="cd"><div class="ct">Setup Pending</div>';
-var stpPB=cf.filter(function(b){return b[wf].setup!=='Shell Complete'});
-if(stpPB.length){stpPB.forEach(function(b){var rk=days<=3?'background:#fdd':days<=5?'background:#fee2cc':days<=7?'background:#fff8e1':'';h+='<div class="ri" style="'+rk+'"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].setup+'</span></div>'})}else h+='<p style="color:var(--ok)">All setups done!</p>';
 
-h+='</div><div class="cd"><div class="ct">Tagging Pending</div>';
+// KPI Cards
+document.getElementById('DK').innerHTML=
+  ki(br.length,'Total Brands','')+
+  ki(tc,'Confirmed','gn')+
+  ki(srcD+'/'+tc,'Sourced',srcD===tc?'gn':'')+
+  ki(stpD+'/'+tc,'Setups Done',stpD===tc?'gn':'')+
+  ki(tagD+'/'+tc,'Tagged',tagD===tc?'gn':'')+
+  ki(goLive+'/'+tc,'Go-Live Ready','gn')+
+  ki(pct+'%','Completion',pct>=75?'gn':pct>=50?'or':'rd')+
+  ki(days<=0?'LIVE':days+'d','Go-Live',days<=3?'rd':days<=7?'or':'gn');
+
+var h='';
+
+// === ROW 1: Progress Bars ===
+h+='<div class="g2">';
+if(R==='manager'){
+  // Category Progress
+  h+='<div class="cd"><div class="ct">Category Progress</div>';
+  CATS.forEach(function(cat){
+    var cb=cf.filter(function(b){return b.category===cat});
+    if(!cb.length)return;
+    var dn=cb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;
+    h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100));
+  });
+  h+='</div>';
+  // POC Progress
+  h+='<div class="cd"><div class="ct">POC Progress</div>';
+  gD().pocs.forEach(function(poc){
+    var pb=cf.filter(function(b){return b.poc===poc});
+    if(!pb.length)return;
+    var dn=pb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;
+    h+=pr(poc+' ('+dn+'/'+pb.length+')',Math.round(dn/pb.length*100));
+  });
+  h+='</div>';
+} else {
+  // POC: My Step-by-Step Progress
+  h+='<div class="cd"><div class="ct">My Progress</div>';
+  if(tc){
+    h+=pr('Sourcing ('+srcD+'/'+tc+')',Math.round(srcD/tc*100));
+    h+=pr('Setup ('+stpD+'/'+tc+')',Math.round(stpD/tc*100));
+    h+=pr('Tagging ('+tagD+'/'+tc+')',Math.round(tagD/tc*100));
+    h+=pr('Go-Live ('+goLive+'/'+tc+')',Math.round(goLive/tc*100));
+  } else h+='<p style="color:var(--ok)">No confirmed brands</p>';
+  h+='</div>';
+  // POC: By Category
+  h+='<div class="cd"><div class="ct">My Brands by Category</div>';
+  CATS.forEach(function(cat){
+    var cb=cf.filter(function(b){return b.category===cat});
+    if(!cb.length)return;
+    var dn=cb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;
+    h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100));
+  });
+  h+='</div>';
+}
+h+='</div>';
+
+// === ROW 2: Yet to Confirm + Sourcing Pending ===
+h+='<div class="g2">';
+h+='<div class="cd"><div class="ct">Yet to Confirm ('+pendConf.length+')</div>';
+if(pendConf.length){
+  pendConf.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+'</div>';
+  });
+} else h+='<p style="color:var(--ok)">All confirmed!</p>';
+h+='</div>';
+
+var srcPB=cf.filter(function(b){return b[wf].sourcing!=='Completed'});
+h+='<div class="cd"><div class="ct">Sourcing Pending ('+srcPB.length+')</div>';
+if(srcPB.length){
+  srcPB.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].sourcing+'</span>'+(b[wf].followup>0?' | F/U: '+b[wf].followup:'')+'</div>';
+  });
+} else h+='<p style="color:var(--ok)">All sourced!</p>';
+h+='</div>';
+h+='</div>';
+
+// === ROW 3: Setup Pending + Tagging Pending ===
+h+='<div class="g2">';
+var stpPB=cf.filter(function(b){return b[wf].setup!=='Shell Complete'});
+h+='<div class="cd"><div class="ct">Setup Pending ('+stpPB.length+')</div>';
+if(stpPB.length){
+  stpPB.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].setup+'</span></div>';
+  });
+} else h+='<p style="color:var(--ok)">All setups done!</p>';
+h+='</div>';
+
 var tagPB=cf.filter(function(b){return b[wf].tagging!=='Completed'});
-if(tagPB.length){tagPB.forEach(function(b){var rk=days<=3?'background:#fdd':days<=5?'background:#fee2cc':days<=7?'background:#fff8e1':'';h+='<div class="ri" style="'+rk+'"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].tagging+'</span></div>'})}
-else h+='<p style="color:var(--ok)">All tagged!</p>';
-h+='</div></div>';
-document.getElementById('DPD').innerHTML=h;document.getElementById('DPC').innerHTML='';document.getElementById('DA').innerHTML='';document.getElementById('DR').innerHTML=''}
+h+='<div class="cd"><div class="ct">Tagging Pending ('+tagPB.length+')</div>';
+if(tagPB.length){
+  tagPB.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].tagging+'</span></div>';
+  });
+} else h+='<p style="color:var(--ok)">All tagged!</p>';
+h+='</div>';
+h+='</div>';
+
+document.getElementById('DASH_BODY').innerHTML=h;
+}
+
+
+
 function ki(v,l,c){return'<div class="ki '+c+'"><div class="kv">'+v+'</div><div class="kl">'+l+'</div></div>'}
 function pr(l,p){return'<div class="pg"><div class="ph"><span>'+l+'</span><span>'+p+'%</span></div><div class="pb"><div class="pf '+(p>=75?'pfg':p>=50?'pfo':'pfr')+'" style="width:'+p+'%"></div></div></div>'}
 
