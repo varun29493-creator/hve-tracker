@@ -331,6 +331,38 @@ if(R==='manager'){
     h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100));
   });
   h+='</div>';
+  // === ROW 1.5: AM Progress ===
+h+='<div class="g2">';
+h+='<div class="cd"><div class="ct">AM Progress</div>';
+var amMap={};
+cf.forEach(function(b){
+  if(!amMap[b.am])amMap[b.am]={total:0,done:0,brand:b.brand,poc:b.poc,cat:b.category};
+  amMap[b.am].total++;
+  if(b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed')amMap[b.am].done++;
+});
+var amKeys=Object.keys(amMap).sort(function(a,b2){return(amMap[a].done/amMap[a].total)-(amMap[b2].done/amMap[b2].total)});
+if(amKeys.length){
+  amKeys.forEach(function(am){
+    var a=amMap[am];
+    var pctAM=Math.round(a.done/a.total*100);
+    h+=pr(am+' ('+a.done+'/'+a.total+')',pctAM);
+  });
+} else h+='<p style="color:var(--ok)">No confirmed brands</p>';
+h+='</div>';
+
+// AM Lagging (not 100% complete)
+h+='<div class="cd"><div class="ct">AMs Lagging</div>';
+var lagging=amKeys.filter(function(am){return amMap[am].done<amMap[am].total});
+if(lagging.length){
+  lagging.forEach(function(am){
+    var a=amMap[am];
+    var remaining=a.total-a.done;
+    h+='<div class="ri"><b>'+am+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+a.cat+')</span>':'')+' <span class="pd po">'+remaining+' pending</span></div>';
+  });
+} else h+='<p style="color:var(--ok)">All AMs on track!</p>';
+h+='</div>';
+h+='</div>';
+
   // POC Progress
   h+='<div class="cd"><div class="ct">POC Progress</div>';
   gD().pocs.forEach(function(poc){
