@@ -217,14 +217,19 @@ document.getElementById('NV').addEventListener('click',function(e){var t=e.targe
 function setDW(w){DWV=w;var a=document.getElementById('DW1'),b=document.getElementById('DW2');if(w==='preArt'){a.style.background='var(--a)';a.style.color='#fff';b.style.background='#fff';b.style.color='var(--a)'}else{b.style.background='var(--a)';b.style.color='#fff';a.style.background='#fff';a.style.color='var(--a)'}rD()}
 
 function gCV(b,col){if(col==='category')return b.category;if(col==='poc')return b.poc;var p=col.split('.');if(p.length===2)return b[p[0]][p[1]]||'-';return''}
-function openFilter(col,evt){evt.stopPropagation();if(OFD===col){closeFilter();return}closeFilter();OFD=col;var br=gB();if(R==='poc')br=br.filter(function(b){return b.poc===U});var vals=[],seen={};br.forEach(function(b){var v=gCV(b,col);if(!seen[v]){seen[v]=1;vals.push(v)}});vals.sort();var cur=FLT[col]||[];var fd=document.createElement('div');fd.className='fd';fd.id='FD';fd.onclick=function(e){e.stopPropagation()};var h='<div class="fa"><a onclick="clearF(\''+col+'\')">Clear</a><a onclick="closeFilter()">Close</a></div>';vals.forEach(function(v){var ck=cur.length===0||cur.indexOf(v)>-1;h+='<label><input type=checkbox value="'+v+'" '+(ck?'checked':'')+' onchange="applyF(\''+col+'\')">'+v+'</label>'});fd.innerHTML=h;evt.target.closest('th').appendChild(fd)}
+function openFilter(col,evt){evt.stopPropagation();if(OFD===col){closeFilter();return}closeFilter();OFD=col;var br=gB();if(R==='poc')br=br.filter(function(b){return b.poc===U});var vals=[],seen={};br.forEach(function(b){var v=gCV(b,col);if(!seen[v]){seen[v]=1;vals.push(v)}});vals.sort();var cur=FLT[col]||[];var fd=document.createElement('div');fd.className='fd';fd.id='FD';fd.onclick=function(e){e.stopPropagation()};var h='<div class="fa"><a onclick="selAllF(\''+col+'\',true)">All</a><a onclick="selAllF(\''+col+'\',false)">None</a><a onclick="closeFilter()">✓ Done</a></div>';
+vals.forEach(function(v){var ck=cur.length===0||cur.indexOf(v)>-1;h+='<label><input type=checkbox value="'+v+'" '+(ck?'checked':'')+' onchange="applyF(\''+col+'\')">'+v+'</label>'});fd.innerHTML=h;evt.target.closest('th').appendChild(fd)}
 function closeFilter(){OFD='';var fd=document.getElementById('FD');if(fd)fd.remove()}
 function clearF(col){delete FLT[col];closeFilter();rT()}
+
+function selAllF(col,check){var fd=document.getElementById('FD');if(!fd)return;fd.querySelectorAll('input[type=checkbox]').forEach(function(cb){cb.checked=check});applyF(col)}
+
 function applyF(col){var fd=document.getElementById('FD');if(!fd)return;var cbs=fd.querySelectorAll('input[type=checkbox]'),sel=[];cbs.forEach(function(cb){if(cb.checked)sel.push(cb.value)});if(sel.length===cbs.length)delete FLT[col];else FLT[col]=sel;rT();renderAFP()}
 function renderAFP(){var h='';Object.keys(FLT).forEach(function(col){var lbl=col.replace('preArt.','Pre-ART ').replace('art.','ART ');h+='<span class="fc">'+lbl+': '+FLT[col].join(', ')+' <span class="x" onclick="clearF(\''+col+'\')">x</span></span>'});document.getElementById('AFP').innerHTML=h}
 document.addEventListener('click',function(){closeFilter()});
 
-function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search brands..." oninput="rT()">';h+='<button class="bt '+(HP?'bd':'bo')+'" onclick="toggleHP()">'+(HP?'Show Pre-ART':'Hide Pre-ART')+'</button>';if(R==='manager')h+='<button class="bt bg" onclick="showAdd()">+ Add</button><button class="bt bo" onclick="showImp()">Import CSV</button>';h+='<button class="bt bo" onclick="dlCSV()">Export</button>';if(Object.keys(FLT).length)h+='<button class="bt bd" onclick="clearAll()">Clear Filters</button>';document.getElementById('TBR').innerHTML=h}
+function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search brands..." oninput="rT()">';h+='<button class="bt '+(HP?'bd':'bo')+'" onclick="toggleHP()">'+(HP?'Show Pre-ART':'Hide Pre-ART')+'</button>';if(R==='manager'){h+='<button class="bt bg" onclick="showAdd()">+ Add</button><button class="bt bo" onclick="showImp()">Import CSV</button>';h+='<button class="bt bd" onclick="delSelected()">Delete</button>';}else{h+='<button class="bt bd" onclick="delSelected()">Delete</button>';}
+h+='<button class="bt bo" onclick="dlCSV()">Export</button>';if(Object.keys(FLT).length)h+='<button class="bt bd" onclick="clearAll()">Clear Filters</button>';document.getElementById('TBR').innerHTML=h}
 function clearAll(){FLT={};rT();renderAFP()}
 function toggleHP(){HP=!HP;rT()}
 
@@ -244,7 +249,8 @@ document.getElementById('SB').innerHTML='<span><b>'+all.length+'</b> total</span
 if(SEL.length&&R==='manager'){document.getElementById('BB').classList.remove('hid');document.getElementById('BC').textContent=SEL.length+' selected'}else document.getElementById('BB').classList.add('hid');
 var fc=function(col){return' <span class="ft" onclick="openFilter(\''+col+'\',event)">&#9660;</span>'};
 var th='<tr>';
-if(R==='manager')th+='<th rowspan="2"><input type="checkbox" class="ckb" onchange="selAll(this.checked)"></th>';
+th+='<th rowspan="2"><input type="checkbox" class="ckb" onchange="selAll(this.checked)"></th>';
+
 th+='<th rowspan="2" style="text-align:left;min-width:100px">Brand</th><th rowspan="2"'+(FLT.category?' class="filtered"':'')+'>Category'+fc('category')+'</th><th rowspan="2"'+(FLT.poc?' class="filtered"':'')+'>POC'+fc('poc')+'</th>';
 if(!HP)th+='<th class="thpg" colspan="8">PRE-ART</th>';
 th+='<th class="thag" colspan="8">ART</th></tr><tr>';
@@ -252,7 +258,7 @@ if(!HP){th+='<th class="thp">Participation'+fc('preArt.participation')+'</th><th
 th+='<th class="tha">Participation'+fc('art.participation')+'</th><th class="tha">Follow-Up</th><th class="tha">Sourcing'+fc('art.sourcing')+'</th><th class="tha">Setup'+fc('art.setup')+'</th><th class="tha">Setup By'+fc('art.setupBy')+'</th><th class="tha">Tagging'+fc('art.tagging')+'</th><th class="tha">Tagged By'+fc('art.tagBy')+'</th><th class="tha">QA'+fc('art.qaDone')+'</th></tr>';
 document.getElementById('TH').innerHTML=th;
 var h='';
-br.forEach(function(b){h+='<tr>';if(R==='manager')h+='<td><input type="checkbox" class="ckb" '+(SEL.indexOf(b.id)>-1?'checked':'')+' onchange="selRow('+b.id+',this.checked)"></td>';h+='<td style="text-align:left"><div class="bn">'+b.brand+'</div><div class="bc">'+b.am+'</div></td>';h+='<td>'+(R==='manager'?mSel('cat',b.id,b.category,CATS):b.category)+'</td>';h+='<td>'+(R==='manager'?mSel('poc',b.id,b.poc,d.pocs):b.poc)+'</td>';if(!HP)h+=wC(b.id,'preArt',b.preArt);h+=wC(b.id,'art',b.art);h+='</tr>'});
+br.forEach(function(b){h+='<tr>';h+='<td><input type="checkbox" class="ckb" '+(SEL.indexOf(b.id)>-1?'checked':'')+' onchange="selRow('+b.id+',this.checked)"></td>';h+='<td style="text-align:left"><div class="bn">'+b.brand+'</div><div class="bc">'+b.am+'</div></td>';h+='<td>'+(R==='manager'?mSel('cat',b.id,b.category,CATS):b.category)+'</td>';h+='<td>'+(R==='manager'?mSel('poc',b.id,b.poc,d.pocs):b.poc)+'</td>';if(!HP)h+=wC(b.id,'preArt',b.preArt);h+=wC(b.id,'art',b.art);h+='</tr>'});
 document.getElementById('TB').innerHTML=h;
 document.getElementById('AR').style.display=R==='poc'?'flex':'none'}
 
@@ -264,12 +270,14 @@ function uW(id,wf,f,v){var d=gD(),b=d.events[CE].brands.find(function(x){return 
 function uBF(id,t,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(t==='cat')b.category=v;else b.poc=v;sD(d)}
 
 function selRow(id,c){if(c){if(SEL.indexOf(id)===-1)SEL.push(id)}else SEL=SEL.filter(function(x){return x!==id});rT()}
-function selAll(c){SEL=c?gB().map(function(b){return b.id}):[];rT()}
+function selAll(c){var br=gB();if(R==='poc')br=br.filter(function(b){return b.poc===U});SEL=c?br.map(function(b){return b.id}):[];rT()}
+
 function bulkReassign(){if(!SEL.length)return;document.getElementById('BRP').innerHTML=gD().pocs.map(function(p){return'<option>'+p+'</option>'}).join('');document.getElementById('MO2').classList.remove('hid')}
 function doBR(){var p=document.getElementById('BRP').value,d=gD();d.events[CE].brands.forEach(function(b){if(SEL.indexOf(b.id)>-1)b.poc=p});sD(d);SEL=[];document.getElementById('MO2').classList.add('hid');rT();toast('Done!')}
 function bulkPart(wf){if(!SEL.length)return;BWF=wf;document.getElementById('BPT').textContent=wf==='preArt'?'Pre-ART Participation':'ART Participation';document.getElementById('MO3').classList.remove('hid')}
 function doBP(){var v=document.getElementById('BPS').value,d=gD();d.events[CE].brands.forEach(function(b){if(SEL.indexOf(b.id)>-1)b[BWF].participation=v});sD(d);SEL=[];document.getElementById('MO3').classList.add('hid');rT();toast('Done!')}
-function bulkDel(){if(!SEL.length)return;if(!confirm('Delete '+SEL.length+' brands?'))return;var d=gD();d.events[CE].brands=d.events[CE].brands.filter(function(b){return SEL.indexOf(b.id)===-1});sD(d);SEL=[];rT();toast('Deleted!')}
+function bulkDel()function delSelected(){if(!SEL.length){toast('Select brands first');return}if(!confirm('Delete '+SEL.length+' brand(s)?'))return;var d=gD();d.events[CE].brands=d.events[CE].brands.filter(function(b){return SEL.indexOf(b.id)===-1});sD(d);SEL=[];rT();toast('Deleted!')}
+{if(!SEL.length)return;if(!confirm('Delete '+SEL.length+' brands?'))return;var d=gD();d.events[CE].brands=d.events[CE].brands.filter(function(b){return SEL.indexOf(b.id)===-1});sD(d);SEL=[];rT();toast('Deleted!')}
 
 function dlCSV(){var br=gB(),c='Brand,Category,POC,AM,PreART_Participation,PreART_Sourcing,PreART_Setup,PreART_SetupBy,PreART_Tagging,PreART_TaggedBy,PreART_QA,ART_Participation,ART_Sourcing,ART_Setup,ART_SetupBy,ART_Tagging,ART_TaggedBy,ART_QA\n';br.forEach(function(b){var p=b.preArt,a=b.art;c+='"'+b.brand+'",'+b.category+','+b.poc+',"'+b.am+'",'+p.participation+','+p.sourcing+','+p.setup+','+(p.setupBy||'-')+','+p.tagging+','+(p.tagBy||'-')+','+p.qaDone+','+a.participation+','+a.sourcing+','+a.setup+','+(a.setupBy||'-')+','+a.tagging+','+(a.tagBy||'-')+','+a.qaDone+'\n'});var bl=new Blob([c],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='HVE_'+CE.replace(/\s/g,'_')+'.csv';a.click();toast('Exported!')}
 
