@@ -228,9 +228,10 @@ function applyF(col){var fd=document.getElementById('FD');if(!fd)return;var cbs=
   function renderAFP(){var h='';Object.keys(FLT).forEach(function(col){var lbl=col.replace('preArt.','Pre-ART ').replace('art.','ART ');h+='<span class="fc">'+lbl+': '+FLT[col].join(', ')+' <span class="x" onclick="clearF(\''+col+'\')">x</span></span>'});document.getElementById('AFP').innerHTML=h}
 document.addEventListener('click',function(){closeFilter()});
 
-function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search brands..." oninput="rT()">';h+='<button class="bt '+(HP?'bd':'bo')+'" onclick="toggleHP()">'+(HP?'Show Pre-ART':'Hide Pre-ART')+'</button>';if(R==='manager'){h+='<button class="bt bg" onclick="showAdd()">+ Add</button><button class="bt bo" onclick="showImp()">Import CSV</button>';h+='<button class="bt bd" onclick="delSelected()">Delete</button>';}else{h+='<button class="bt bd" onclick="delSelected()">Delete</button>';}
-h+='<button class="bt bo" onclick="dlCSV()">Export</button>';if(Object.keys(FLT).length)h+='<button class="bt bd" onclick="clearAll()">Clear Filters</button>';document.getElementById('TBR').innerHTML=h}
-function clearAll(){FLT={};rT();renderAFP()}
+function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search brands..." oninput="rT()">';h+='<button class="bt '+(HP?'bd':'bo')+'" onclick="toggleHP()">'+(HP?'Show Pre-ART':'Hide Pre-ART')+'</button>';if(R==='manager'){h+='<button class="bt bg" onclick="showAdd()">+ Add</button><button class="bt bo" onclick="showImp()">Import CSV</button>';}h+='<button class="bt bo" onclick="dlCSV()">Export</button>';if(SEL.length)h+='<button class="bt bd" onclick="delSelected()">Delete Selected</button>';if(Object.keys(FLT).length)h+='<button class="bt bd" onclick="clearAll()">Clear Filters</button>';document.getElementById('TBR').innerHTML=h}
+
+
+  function clearAll(){FLT={};rT();renderAFP()}
 function toggleHP(){HP=!HP;rT()}
 
 function showAdd(){var n=prompt('Brand:');if(!n)return;var d=gD(),c=prompt('Category (CEPC/CPG/OHL/Softlines/GCS):','CEPC'),p=prompt('POC:',d.pocs[0]),am=prompt('AM:','TBD'),br=d.events[CE].brands,mx=0;br.forEach(function(b){if(b.id>mx)mx=b.id});br.push({id:mx+1,brand:n,category:c||'CEPC',poc:p||d.pocs[0],am:am||'TBD',preArt:dW(),art:dW()});sD(d);rT();toast(n+' added!')}
