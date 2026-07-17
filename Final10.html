@@ -319,40 +319,10 @@ document.getElementById('DK').innerHTML=
 
 var h='';
 
-// === ROW 1: Progress Bars ===
+// === ROW 1: Progress ===
 h+='<div class="g2">';
 if(R==='manager'){
-  // Category Progress
-  h+='<div class="cd"><div class="ct">Category Progress</div>';
-  CATS.forEach(function(cat){
-    var cb=cf.filter(function(b){return b.category===cat});
-    if(!cb.length)return;
-    var dn=cb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;
-    h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100));
-  });
-  h+='</div>';
-  // === AM Progress ===
-h+='<div class="g2">';
-h+='<div class="cd" style="grid-column:1/-1"><div class="ct">AM Progress</div>';
-var amMap={};
-cf.forEach(function(b){
-  if(!amMap[b.am])amMap[b.am]={total:0,done:0,cat:b.category,poc:b.poc};
-  amMap[b.am].total++;
-  if(b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed')amMap[b.am].done++;
-});
-var amKeys=Object.keys(amMap).sort(function(a,b2){return(amMap[a].done/amMap[a].total)-(amMap[b2].done/amMap[b2].total)});
-if(amKeys.length){
-  amKeys.forEach(function(am){
-    var a=amMap[am];
-    var pctAM=Math.round(a.done/a.total*100);
-    var label=am+(R==='manager'?' ['+a.cat+']':'')+' ('+a.done+'/'+a.total+')';
-    h+=pr(label,pctAM);
-  });
-} else h+='<p style="color:var(--ok)">No confirmed brands</p>';
-h+='</div>';
-h+='</div>';
-
-  // POC Progress
+  // POC Progress (left)
   h+='<div class="cd"><div class="ct">POC Progress</div>';
   gD().pocs.forEach(function(poc){
     var pb=cf.filter(function(b){return b.poc===poc});
@@ -361,8 +331,24 @@ h+='</div>';
     h+=pr(poc+' ('+dn+'/'+pb.length+')',Math.round(dn/pb.length*100));
   });
   h+='</div>';
+  // AM Progress (right) - sorted worst first
+  h+='<div class="cd"><div class="ct">AM Progress</div>';
+  var amMap={};
+  cf.forEach(function(b){
+    if(!amMap[b.am])amMap[b.am]={total:0,done:0,cat:b.category};
+    amMap[b.am].total++;
+    if(b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed')amMap[b.am].done++;
+  });
+  var amKeys=Object.keys(amMap).sort(function(a,b2){return(amMap[a].done/amMap[a].total)-(amMap[b2].done/amMap[b2].total)});
+  if(amKeys.length){
+    amKeys.forEach(function(am){
+      var a=amMap[am];
+      h+=pr(am+' ['+a.cat+'] ('+a.done+'/'+a.total+')',Math.round(a.done/a.total*100));
+    });
+  } else h+='<p style="color:var(--ok)">No confirmed brands</p>';
+  h+='</div>';
 } else {
-  // POC: My Step-by-Step Progress
+  // POC: My Step-by-Step Progress (left)
   h+='<div class="cd"><div class="ct">My Progress</div>';
   if(tc){
     h+=pr('Sourcing ('+srcD+'/'+tc+')',Math.round(srcD/tc*100));
@@ -371,58 +357,34 @@ h+='</div>';
     h+=pr('Go-Live ('+goLive+'/'+tc+')',Math.round(goLive/tc*100));
   } else h+='<p style="color:var(--ok)">No confirmed brands</p>';
   h+='</div>';
-  // POC: By Category
-  h+='<div class="cd"><div class="ct">My Brands by Category</div>';
-  CATS.forEach(function(cat){
-    var cb=cf.filter(function(b){return b.category===cat});
-    if(!cb.length)return;
-    var dn=cb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;
-    h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100));
+  // POC: AM Progress (right) - only their AMs
+  h+='<div class="cd"><div class="ct">AM Progress</div>';
+  var amMap2={};
+  cf.forEach(function(b){
+    if(!amMap2[b.am])amMap2[b.am]={total:0,done:0};
+    amMap2[b.am].total++;
+    if(b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed')amMap2[b.am].done++;
   });
+  var amKeys2=Object.keys(amMap2).sort(function(a,b2){return(amMap2[a].done/amMap2[a].total)-(amMap2[b2].done/amMap2[b2].total)});
+  if(amKeys2.length){
+    amKeys2.forEach(function(am){
+      var a=amMap2[am];
+      h+=pr(am+' ('+a.done+'/'+a.total+')',Math.round(a.done/a.total*100));
+    });
+  } else h+='<p style="color:var(--ok)">No confirmed brands</p>';
   h+='</div>';
 }
 h+='</div>';
 
-// === ROW 2: Yet to Confirm + Sourcing Pending ===
-h+='<div class="g2">';
-h+='<div class="cd"><div class="ct">Yet to Confirm ('+pendConf.length+')</div>';
-if(pendConf.length){
-  pendConf.forEach(function(b){
-    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+'</div>';
-  });
-} else h+='<p style="color:var(--ok)">All confirmed!</p>';
-h+='</div>';
-
-var srcPB=cf.filter(function(b){return b[wf].sourcing!=='Completed'});
-h+='<div class="cd"><div class="ct">Sourcing Pending ('+srcPB.length+')</div>';
-if(srcPB.length){
-  srcPB.forEach(function(b){
-    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].sourcing+'</span>'+(b[wf].followup>0?' | F/U: '+b[wf].followup:'')+'</div>';
-  });
-} else h+='<p style="color:var(--ok)">All sourced!</p>';
-h+='</div>';
-h+='</div>';
-
-// === ROW 3: Setup Pending + Tagging Pending ===
-h+='<div class="g2">';
-var stpPB=cf.filter(function(b){return b[wf].setup!=='Shell Complete'});
-h+='<div class="cd"><div class="ct">Setup Pending ('+stpPB.length+')</div>';
-if(stpPB.length){
-  stpPB.forEach(function(b){
-    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].setup+'</span></div>';
-  });
-} else h+='<p style="color:var(--ok)">All setups done!</p>';
-h+='</div>';
-
-var tagPB=cf.filter(function(b){return b[wf].tagging!=='Completed'});
-h+='<div class="cd"><div class="ct">Tagging Pending ('+tagPB.length+')</div>';
-if(tagPB.length){
-  tagPB.forEach(function(b){
-    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].tagging+'</span></div>';
-  });
-} else h+='<p style="color:var(--ok)">All tagged!</p>';
-h+='</div>';
-h+='</div>';
+// === Category Summary (compact full-width) ===
+h+='<div class="g2"><div class="cd" style="grid-column:1/-1"><div class="ct">Category Summary</div>';
+CATS.forEach(function(cat){
+  var cb=cf.filter(function(b){return b.category===cat});
+  if(!cb.length)return;
+  var dn=cb.filter(function(b){return b[wf].setup==='Shell Complete'&&b[wf].tagging==='Completed'}).length;
+  h+=pr(cat+' ('+dn+'/'+cb.length+')',Math.round(dn/cb.length*100));
+});
+h+='</div></div>';
 
 document.getElementById('DASH_BODY').innerHTML=h;
 }
