@@ -293,6 +293,7 @@ function delSelected(){if(!SEL.length){toast('Select brands first');return}if(!c
 function dlCSV(){var br=gB(),c='Brand,Category,POC,AM,PreART_Participation,PreART_Sourcing,PreART_Setup,PreART_SetupBy,PreART_Tagging,PreART_TaggedBy,PreART_QA,ART_Participation,ART_Sourcing,ART_Setup,ART_SetupBy,ART_Tagging,ART_TaggedBy,ART_QA\n';br.forEach(function(b){var p=b.preArt,a=b.art;c+='"'+b.brand+'",'+b.category+','+b.poc+',"'+b.am+'",'+p.participation+','+p.sourcing+','+p.setup+','+(p.setupBy||'-')+','+p.tagging+','+(p.tagBy||'-')+','+p.qaDone+','+a.participation+','+a.sourcing+','+a.setup+','+(a.setupBy||'-')+','+a.tagging+','+(a.tagBy||'-')+','+a.qaDone+'\n'});var bl=new Blob([c],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='HVE_'+CE.replace(/\s/g,'_')+'.csv';a.click();toast('Exported!')}
 
 
+
 function rD(){
 var e=gE();if(!e)return;
 var wf=DWV,allBr=e.brands;
@@ -320,7 +321,7 @@ document.getElementById('DK').innerHTML=
 
 var h='';
 
-// === ROW 1: Progress ===
+// === ROW 1: POC Progress + AM Progress ===
 h+='<div class="g2">';
 if(R==='manager'){
   // POC Progress (left)
@@ -332,7 +333,7 @@ if(R==='manager'){
     h+=pr(poc+' ('+dn+'/'+pb.length+')',Math.round(dn/pb.length*100));
   });
   h+='</div>';
-  // AM Progress (right) - sorted worst first
+  // AM Progress (right)
   h+='<div class="cd"><div class="ct">AM Progress</div>';
   var amMap={};
   cf.forEach(function(b){
@@ -349,7 +350,7 @@ if(R==='manager'){
   } else h+='<p style="color:var(--ok)">No confirmed brands</p>';
   h+='</div>';
 } else {
-  // POC: My Step-by-Step Progress (left)
+  // POC: My Progress (left)
   h+='<div class="cd"><div class="ct">My Progress</div>';
   if(tc){
     h+=pr('Sourcing ('+srcD+'/'+tc+')',Math.round(srcD/tc*100));
@@ -358,7 +359,7 @@ if(R==='manager'){
     h+=pr('Go-Live ('+goLive+'/'+tc+')',Math.round(goLive/tc*100));
   } else h+='<p style="color:var(--ok)">No confirmed brands</p>';
   h+='</div>';
-  // POC: AM Progress (right) - only their AMs
+  // POC: AM Progress (right)
   h+='<div class="cd"><div class="ct">AM Progress</div>';
   var amMap2={};
   cf.forEach(function(b){
@@ -377,7 +378,7 @@ if(R==='manager'){
 }
 h+='</div>';
 
-// === Category Summary (compact full-width) ===
+// === ROW 2: Category Summary (full-width) ===
 h+='<div class="g2"><div class="cd" style="grid-column:1/-1"><div class="ct">Category Summary</div>';
 CATS.forEach(function(cat){
   var cb=cf.filter(function(b){return b.category===cat});
@@ -387,8 +388,50 @@ CATS.forEach(function(cat){
 });
 h+='</div></div>';
 
+// === ROW 3: Yet to Confirm + Sourcing Pending ===
+h+='<div class="g2">';
+h+='<div class="cd"><div class="ct">Yet to Confirm ('+pendConf.length+')</div>';
+if(pendConf.length){
+  pendConf.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+'</div>';
+  });
+} else h+='<p style="color:var(--ok)">All confirmed!</p>';
+h+='</div>';
+
+var srcPB=cf.filter(function(b){return b[wf].sourcing!=='Completed'});
+h+='<div class="cd"><div class="ct">Sourcing Pending ('+srcPB.length+')</div>';
+if(srcPB.length){
+  srcPB.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].sourcing+'</span>'+(b[wf].followup>0?' | F/U: '+b[wf].followup:'')+'</div>';
+  });
+} else h+='<p style="color:var(--ok)">All sourced!</p>';
+h+='</div>';
+h+='</div>';
+
+// === ROW 4: Setup Pending + Tagging Pending ===
+h+='<div class="g2">';
+var stpPB=cf.filter(function(b){return b[wf].setup!=='Shell Complete'});
+h+='<div class="cd"><div class="ct">Setup Pending ('+stpPB.length+')</div>';
+if(stpPB.length){
+  stpPB.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].setup+'</span></div>';
+  });
+} else h+='<p style="color:var(--ok)">All setups done!</p>';
+h+='</div>';
+
+var tagPB=cf.filter(function(b){return b[wf].tagging!=='Completed'});
+h+='<div class="cd"><div class="ct">Tagging Pending ('+tagPB.length+')</div>';
+if(tagPB.length){
+  tagPB.forEach(function(b){
+    h+='<div class="ri"><b>'+b.brand+'</b>'+(R==='manager'?' <span style="color:var(--m)">('+b.poc+')</span>':'')+' <span class="pd po">'+b[wf].tagging+'</span></div>';
+  });
+} else h+='<p style="color:var(--ok)">All tagged!</p>';
+h+='</div>';
+h+='</div>';
+
 document.getElementById('DASH_BODY').innerHTML=h;
 }
+
 
 
 
