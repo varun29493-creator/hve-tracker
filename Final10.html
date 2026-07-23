@@ -335,8 +335,8 @@ function wC(id,wf,w){var h='';h+='<td>'+mPart(id,wf,w.participation)+'</td>';h+=
 function mPart(id,wf,v){var c=v==='Confirmed'?'#d4edda':v==='Not Participating'?'#eee':'#fff3cd';return'<select style="background:'+c+';font-size:10px;padding:2px;border:1px solid #ddd;border-radius:3px" onchange="uW('+id+',\''+wf+'\',\'participation\',this.value)"><option'+(v==='Confirmed'?' selected':'')+'>Confirmed</option><option'+(v==='Pending Confirmation'?' selected':'')+'>Pending</option><option'+(v==='Not Participating'?' selected':'')+'>No</option></select>'}
 function mO(id,wf,f,v,opts){var h='<select onchange="uW('+id+',\''+wf+'\',\''+f+'\',this.value)">';opts.forEach(function(o){h+='<option value="'+o+'"'+(o===v?' selected':'')+'>'+(o||'-')+'</option>'});return h+'</select>'}
 function mSel(t,id,v,opts){var h='<select onchange="uBF('+id+',\''+t+'\',this.value)">';opts.forEach(function(o){h+='<option'+(o===v?' selected':'')+'>'+o+'</option>'});return h+'</select>'}
-function uW(id,wf,f,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(f==='participation'){v=v==='Pending'?'Pending Confirmation':v==='No'?'Not Participating':v}b[wf][f]=v;sD(d)}
-function uBF(id,t,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(t==='cat')b.category=v;else b.poc=v;sD(d)}
+function uW(id,wf,f,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(f==='participation'){v=v==='Pending'?'Pending Confirmation':v==='No'?'Not Participating':v}b[wf][f]=v;sD(d,b)}
+function uBF(id,t,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(t==='cat')b.category=v;else b.poc=v;sD(d,b)}
 
 function selRow(id,c){if(c){if(SEL.indexOf(id)===-1)SEL.push(id)}else SEL=SEL.filter(function(x){return x!==id});rT()}
 function selAll(c){var br=gB();if(R==='poc')br=br.filter(function(b){return b.poc===U});SEL=c?br.map(function(b){return b.id}):[];rT()}
@@ -528,7 +528,7 @@ function rAd(){var d=gD(),e=gE();if(e){document.getElementById('SD1').value=e.pr
 function saveDates(){var d=gD();d.events[CE].preArtDate=document.getElementById('SD1').value;d.events[CE].artDate=document.getElementById('SD2').value;sD(d);updEI();toast('Saved!')}
 function addPoc(){var n=document.getElementById('NP').value.trim();if(!n)return;var d=gD();if(d.pocs.indexOf(n)>-1){toast('Exists');return}d.pocs.push(n);sD(d);rAd();document.getElementById('NP').value='';toast(n+' added!')}
 function rmPoc(n){if(!confirm('Remove '+n+'?'))return;var d=gD();d.pocs=d.pocs.filter(function(p){return p!==n});sD(d);rAd()}
-function initApp(){popEv();rT()}
+function initApp(){popEv();rT();setInterval(loadFromCloud,30000)}
 
 
 
