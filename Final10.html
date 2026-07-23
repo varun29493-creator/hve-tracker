@@ -172,14 +172,55 @@ function toast(m){var e=document.getElementById('TT');e.textContent=m;e.style.di
 function dU(s){if(!s)return 999;return Math.ceil((new Date(s+'T00:00:00').getTime()-new Date(new Date().toDateString()).getTime())/86400000)}
 function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTML=d.pocs.map(function(p){return'<option>'+p+'</option>'}).join('')}
 
-(function(){updateLoginDropdown();var d=gD();CE=d.currentEvent||Object.keys(d.events);var s=localStorage.getItem('hve18_u');if(s&&d.pocs.indexOf(s)>-1){U=s;document.getElementById('LS').style.display='none';document.getElementById('UB').textContent='POC: '+U;setTimeout(initApp,0)}})();
+(function(){
+  updateLoginDropdown();
+  var d=gD();
+  CE=d.currentEvent||Object.keys(d.events);
+  var s=localStorage.getItem('hve18_u');
+  if(s&&d.pocs.indexOf(s)>-1){
+    U=s;
+    document.getElementById('LS').style.display='none';
+    document.getElementById('UB').textContent='POC: '+U;
+    // Auto-pull from cloud on every page load
+    fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
+    .then(function(r){return r.json()})
+    .then(function(res){
+      if(res.success&&res.brands&&res.brands.length){
+        var d2=gD();
+        d2.events[CE].brands=res.brands;
+        localStorage.setItem('hve18',JSON.stringify(d2));
+      }
+      initApp();
+    })
+    .catch(function(){initApp()});
+  }
+})();
 
-function sD(d){
-localStorage.setItem('hve18',JSON.stringify(d));
-document.getElementById('SV').style.display='block';
-setTimeout(function(){document.getElementById('SV').style.display='none'},1200);
-var brands=d.events[CE]?d.events[CE].brands:[];
-fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',event:CE,brands:brands})}).then(function(r){return r.text()}).then(function(t){console.log('Saved:',t)}).catch(function(err){console.log('Sync error:',err)});
+
+var _saveTimer=null;
+function sD(d,changedBrand){
+  localStorage.setItem('hve18',JSON.stringify(d));
+  document.getElementById('SV').style.display='block';
+  setTimeout(function(){document.getElementById('SV').style.display='none'},1200);
+
+  // If single brand changed, use 'update' (fast, no delete-all)
+  if(changedBrand){
+    fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',event:CE,brand:changedBrand})})
+    .then(function(r){return r.text()})
+    .then(function(){console.log('Updated ✓')})
+    .catch(function(err){console.error(err);toast('⚠️ Not synced!')});
+    return;
+  }
+
+  // For bulk operations, debounce the full save
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(function(){
+    var brands=d.events[CE]?d.events[CE].brands:[];
+    fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',event:CE,brands:brands})})
+    .then(function(r){return r.text()})
+    .then(function(){console.log('Cloud saved ✓')})
+    .catch(function(err){console.error(err);toast('⚠️ Not synced!')});
+  },2000);
 }
 
 
@@ -191,7 +232,26 @@ if(res.success&&res.brands&&res.brands.length){var d=gD();d.events[CE].brands=re
 }
 
 
-function doLogin(){U=document.getElementById('LP').value;if(!U){toast('Select name');return}localStorage.setItem('hve18_u',U);document.getElementById('LS').style.display='none';document.getElementById('UB').textContent='POC: '+U;initApp()}
+function doLogin(){
+  U=document.getElementById('LP').value;
+  if(!U){toast('Select name');return}
+  localStorage.setItem('hve18_u',U);
+  document.getElementById('LS').style.display='none';
+  document.getElementById('UB').textContent='POC: '+U;
+  toast('Loading...');
+  fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
+  .then(function(r){return r.json()})
+  .then(function(res){
+    if(res.success&&res.brands&&res.brands.length){
+      var d=gD();
+      d.events[CE].brands=res.brands;
+      localStorage.setItem('hve18',JSON.stringify(d));
+    }
+    initApp();
+  })
+  .catch(function(){initApp()});
+}
+
 function doLogout(){localStorage.removeItem('hve18_u');location.reload()}
 
 function toggleRole(){R=R==='poc'?'manager':'poc';if(R==='manager'){document.getElementById('UB').textContent='Manager';document.getElementById('RBT').textContent='POC View';document.getElementById('AN').classList.remove('hid');document.getElementById('NE').classList.remove('hid')}else{document.getElementById('UB').textContent='POC: '+U;document.getElementById('RBT').textContent='Manager View';document.getElementById('AN').classList.add('hid');document.getElementById('NE').classList.add('hid')}SEL=[];rT();if(document.getElementById('s-dash').classList.contains('ac'))rD()}
