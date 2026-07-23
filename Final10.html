@@ -170,7 +170,7 @@ function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTM
     fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
     .then(function(r){return r.json()})
     .then(function(res){
-      if(res.success&&res.brands&&res.brands.length){
+      if(res.success&&res.brands){
         var d2=gD();
         d2.events[CE].brands=res.brands;
         localStorage.setItem('hve18',JSON.stringify(d2));
@@ -204,7 +204,7 @@ function sD(d,changedBrand){
 function autoSync(){
   if(_saving)return;
   fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){
-    if(res.success&&res.brands&&res.brands.length){var d=gD();d.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d));rT()}
+    if(res.success&&res.brands){var d=gD();d.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d));rT()}
   }).catch(function(){});
 }
 
@@ -219,7 +219,7 @@ function doLogin(){
   fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
   .then(function(r){return r.json()})
   .then(function(res){
-    if(res.success&&res.brands&&res.brands.length){
+    if(res.success&&res.brands){
       var d=gD();
       d.events[CE].brands=res.brands;
       localStorage.setItem('hve18',JSON.stringify(d));
