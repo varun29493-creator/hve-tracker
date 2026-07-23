@@ -203,24 +203,17 @@ function sD(d,changedBrand){
   document.getElementById('SV').style.display='block';
   setTimeout(function(){document.getElementById('SV').style.display='none'},1200);
 
-  // If single brand changed, use 'update' (fast, no delete-all)
   if(changedBrand){
     fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',event:CE,brand:changedBrand})})
-    .then(function(r){return r.text()})
-    .then(function(){console.log('Updated ✓')})
+    .then(function(r){return r.text()}).then(function(){console.log('Updated ✓')})
     .catch(function(err){console.error(err);toast('⚠️ Not synced!')});
     return;
   }
 
-  // For bulk operations, debounce the full save
-  clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(function(){
-    var brands=d.events[CE]?d.events[CE].brands:[];
-    fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',event:CE,brands:brands})})
-    .then(function(r){return r.text()})
-    .then(function(){console.log('Cloud saved ✓')})
-    .catch(function(err){console.error(err);toast('⚠️ Not synced!')});
-  },2000);
+  var brands=d.events[CE]?d.events[CE].brands:[];
+  fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',event:CE,brands:brands})})
+  .then(function(r){return r.text()}).then(function(){console.log('Cloud saved ✓')})
+  .catch(function(err){console.error(err);toast('⚠️ Not synced!')});
 }
 
 
