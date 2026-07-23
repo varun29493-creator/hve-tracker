@@ -124,7 +124,7 @@ td input[type=number]{width:40px;padding:2px;text-align:center;border:1px solid 
 <button onclick="doLogin()">Login</button>
 </div>
 </div>
-<div class="hdr"><h2>HVE Campaign Tracker</h2><div class="hr"><span id="UB"></span><button id="RBT" onclick="toggleRole()">Manager View</button><button style="background:#fff;color:var(--a)" onclick="loadFromCloud()">↻ Sync</button><button style="background:#fff;color:var(--a)" onclick="doLogout()">Logout</button></div></div>
+<div class="hdr"><h2>HVE Campaign Tracker</h2><div class="hr"><span id="UB"></span><button id="RBT" onclick="toggleRole()">Manager View</button><button style="background:#fff;color:var(--a)" onclick="doLogout()">Logout</button></div></div>
 <div class="eb"><select id="ES" onchange="switchEv()"></select><span id="ED"></span><span id="DC2" class="ec eo"></span><button class="bt bo hid" id="NE" onclick="showModal()">+ New Event</button></div>
 <div id="NV"><div class="ni ac" data-t="brands">My Brands</div><div class="ni" data-t="dash">Dashboard</div><div class="ni" data-t="reports">Reports</div><div class="ni hid" id="AN" data-t="admin">Administration</div></div>
 <div class="sec ac" id="s-brands"><div id="TBR"></div><div id="AFP"></div><div id="SB"></div><div id="BB" class="hid"><span id="BC"></span><button class="bt bo" onclick="bulkReassign()">Reassign</button><button class="bt bo" onclick="bulkPart('preArt')">Pre-ART Status</button><button class="bt bo" onclick="bulkPart('art')">ART Status</button><button class="bt bd" onclick="bulkDel()">Delete</button></div><div class="tw"><table><thead id="TH"></thead><tbody id="TB"></tbody></table></div><div id="AR" style="display:none"><input type="text" id="AI" placeholder="Brand name"><select id="AIC"><option>CEPC</option><option>CPG</option><option>OHL</option><option>Softlines</option><option>GCS</option></select><input type="text" id="AIM" placeholder="AM name"><button onclick="addB()">+ Add</button></div></div>
@@ -197,31 +197,30 @@ function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTM
 })();
 
 
-var _saveTimer=null;
+var _saving=false;
 function sD(d,changedBrand){
   localStorage.setItem('hve18',JSON.stringify(d));
   document.getElementById('SV').style.display='block';
   setTimeout(function(){document.getElementById('SV').style.display='none'},1200);
-
+  _saving=true;
   if(changedBrand){
     fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',event:CE,brand:changedBrand})})
-    .then(function(r){return r.text()}).then(function(){console.log('Updated ✓')})
-    .catch(function(err){console.error(err);toast('⚠️ Not synced!')});
+    .then(function(r){return r.text()}).then(function(){_saving=false})
+    .catch(function(){_saving=false});
     return;
   }
-
   var brands=d.events[CE]?d.events[CE].brands:[];
   fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',event:CE,brands:brands})})
-  .then(function(r){return r.text()}).then(function(){console.log('Cloud saved ✓')})
-  .catch(function(err){console.error(err);toast('⚠️ Not synced!')});
+  .then(function(r){return r.text()}).then(function(){_saving=false})
+  .catch(function(){_saving=false});
 }
 
 
-function loadFromCloud(){
-toast('Syncing...');
-fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){
-if(res.success&&res.brands&&res.brands.length){var d=gD();d.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d));rT();toast('Synced!')}else{toast('No cloud data yet')}
-}).catch(function(err){console.log(err);toast('Sync failed')});
+function autoSync(){
+  if(_saving)return;
+  fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){
+    if(res.success&&res.brands&&res.brands.length){var d=gD();d.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d));rT()}
+  }).catch(function(){});
 }
 
 
@@ -521,7 +520,8 @@ function rAd(){var d=gD(),e=gE();if(e){document.getElementById('SD1').value=e.pr
 function saveDates(){var d=gD();d.events[CE].preArtDate=document.getElementById('SD1').value;d.events[CE].artDate=document.getElementById('SD2').value;sD(d);updEI();toast('Saved!')}
 function addPoc(){var n=document.getElementById('NP').value.trim();if(!n)return;var d=gD();if(d.pocs.indexOf(n)>-1){toast('Exists');return}d.pocs.push(n);sD(d);rAd();document.getElementById('NP').value='';toast(n+' added!')}
 function rmPoc(n){if(!confirm('Remove '+n+'?'))return;var d=gD();d.pocs=d.pocs.filter(function(p){return p!==n});sD(d);rAd()}
-function initApp(){popEv();rT();setInterval(loadFromCloud,30000)}
+function initApp(){popEv();rT();setInterval(autoSync,15000)}
+
 
 
 
