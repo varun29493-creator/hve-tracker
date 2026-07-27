@@ -170,7 +170,7 @@ function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTM
     fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
     .then(function(r){return r.json()})
     .then(function(res){
-      if(res.success&&res.brands){
+      if(res.success&&res.brands&&res.brands.length>0){
         var d2=gD();
         d2.events[CE].brands=res.brands;
         localStorage.setItem('hve18',JSON.stringify(d2));
@@ -256,7 +256,7 @@ function doLogin(){
   fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
   .then(function(r){return r.json()})
   .then(function(res){
-    if(res.success&&res.brands){
+    if(res.success&&res.brands&&res.brands.length>0){
       var d=gD();
       d.events[CE].brands=res.brands;
       localStorage.setItem('hve18',JSON.stringify(d));
@@ -272,7 +272,8 @@ function toggleRole(){R=R==='poc'?'manager':'poc';if(R==='manager'){document.get
 
 
 function popEv(){var d=gD(),s=document.getElementById('ES');s.innerHTML=Object.keys(d.events).map(function(k){return'<option'+(k===CE?' selected':'')+'>'+k+'</option>'}).join('');updEI()}
-function switchEv(){CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;localStorage.setItem('hve18',JSON.stringify(d));updEI();fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){if(res.success&&res.brands){var d2=gD();d2.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d2));rT()}}).catch(function(){rT()})}
+function switchEv(){CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;localStorage.setItem('hve18',JSON.stringify(d));updEI();fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){if(res.success&&res.brands&&res.brands.length>0){
+{var d2=gD();d2.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d2));rT()}}).catch(function(){rT()})}
 
 
 
@@ -362,10 +363,11 @@ function uW(id,wf,f,v){
   setTimeout(function(){document.getElementById('SV').style.display='none'},1200);
   _savingCount++;
   fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({action:'updateField',event:CE,id:id,wf:wf,field:f,value:v})})
+    body:JSON.stringify({action:'update',event:CE,brand:b})})
   .then(function(){_savingCount--;_lastSaveTime=Date.now()})
   .catch(function(){_savingCount--;_lastSaveTime=Date.now()});
 }
+
   
 function uBF(id,t,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(t==='cat')b.category=v;else b.poc=v;sD(d,b)}
 
