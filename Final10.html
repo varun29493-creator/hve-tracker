@@ -232,7 +232,7 @@ function toggleRole(){R=R==='poc'?'manager':'poc';if(R==='manager'){document.get
 
 
 function popEv(){var d=gD(),s=document.getElementById('ES');s.innerHTML=Object.keys(d.events).map(function(k){return'<option'+(k===CE?' selected':'')+'>'+k+'</option>'}).join('');updEI()}
-function switchEv(){CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;localStorage.setItem('hve18',JSON.stringify(d));updEI();rT()}
+function switchEv(){CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;localStorage.setItem('hve18',JSON.stringify(d));updEI();fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){if(res.success&&res.brands){var d2=gD();d2.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d2));rT()}}).catch(function(){rT()})}
 
 
 
