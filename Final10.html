@@ -347,7 +347,7 @@ if(!HP){th+='<th class="thp">Participation'+fc('preArt.participation')+'</th><th
 th+='<th class="tha">Participation'+fc('art.participation')+'</th><th class="tha">Follow-Up</th><th class="tha">Sourcing'+fc('art.sourcing')+'</th><th class="tha">Setup'+fc('art.setup')+'</th><th class="tha">Setup By'+fc('art.setupBy')+'</th><th class="tha">Tagging'+fc('art.tagging')+'</th><th class="tha">Tagged By'+fc('art.tagBy')+'</th><th class="tha">QA'+fc('art.qaDone')+'</th></tr>';
 document.getElementById('TH').innerHTML=th;
 var h='';
-br.forEach(function(b){h+='<tr>';h+='<td><input type="checkbox" class="ckb" '+(SEL.indexOf(b.id)>-1?'checked':'')+' onchange="selRow('+b.id+',this.checked)"></td>';h+='<td style="text-align:left"><div class="bn">'+b.brand+'</div><div class="bc">'+b.am+'</div></td>';h+='<td>'+(R==='manager'?mSel('cat',b.id,b.category,CATS):b.category)+'</td>';h+='<td>'+(R==='manager'?mSel('poc',b.id,b.poc,d.pocs):b.poc)+'</td>';if(!HP)h+=wC(b.id,'preArt',b.preArt);h+=wC(b.id,'art',b.art);h+='</tr>'});
+br.forEach(function(b){h+='<tr>';h+='<td><input type="checkbox" class="ckb" '+(SEL.indexOf(b.id)>-1?'checked':'')+' onchange="selRow(\''+b.id+'\',this.checked)"></td>';h+='<td style="text-align:left"><div class="bn">'+b.brand+'</div><div class="bc">'+b.am+'</div></td>';h+='<td>'+(R==='manager'?mSel('cat',b.id,b.category,CATS):b.category)+'</td>';h+='<td>'+(R==='manager'?mSel('poc',b.id,b.poc,d.pocs):b.poc)+'</td>';if(!HP)h+=wC(b.id,'preArt',b.preArt);h+=wC(b.id,'art',b.art);h+='</tr>'});
 document.getElementById('TB').innerHTML=h;
 document.getElementById('AR').style.display=R==='poc'?'flex':'none'}
 
