@@ -194,13 +194,7 @@ function sD(d,changedBrand){
   }
 }
 
-  var brands=d.events[CE]?d.events[CE].brands:[];
-  fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',event:CE,brands:brands})})
-  .then(function(r){return r.text()}).then(function(){_saving=false})
-  .catch(function(){_saving=false});
-}
-
-
+ 
 function autoSync(){
   if(_saving)return;
   fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){
@@ -276,9 +270,9 @@ function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search b
   function clearAll(){FLT={};rT();renderAFP()}
 function toggleHP(){HP=!HP;rT()}
 
-function showAdd(){var n=prompt('Brand:');if(!n)return;var d=gD(),c=prompt('Category (CEPC/CPG/OHL/Softlines/GCS):','CEPC'),p=prompt('POC:',d.pocs[0]),am=prompt('AM:','TBD'),br=d.events[CE].brands,mx=0;br.forEach(function(b){if(b.id>mx)mx=b.id});br.push({id:mx+1,brand:n,category:c||'CEPC',poc:p||d.pocs[0],am:am||'TBD',preArt:dW(),art:dW()});sD(d);rT();toast(n+' added!')}
+function showAdd(){var n=prompt('Brand:');if(!n)return;var d=gD(),c=prompt('Category (CEPC/CPG/OHL/Softlines/GCS):','CEPC'),p=prompt('POC:',d.pocs),am=prompt('AM:','TBD'),br=d.events[CE].brands,mx=0;br.forEach(function(b){if(b.id>mx)mx=b.id});var newB={id:mx+1,brand:n,category:c||'CEPC',poc:p||d.pocs,am:am||'TBD',preArt:dW(),art:dW()};br.push(newB);localStorage.setItem('hve18',JSON.stringify(d));rT();toast(n+' added!');_saving=true;fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',event:CE,brand:newB})}).then(function(r){return r.json()}).then(function(res){if(res.id){var d2=gD();var b2=d2.events[CE].brands.find(function(x){return x.brand===newB.brand&&x.poc===newB.poc&&x.am===newB.am});if(b2)b2.id=res.id;localStorage.setItem('hve18',JSON.stringify(d2))}_saving=false}).catch(function(){_saving=false})}
 function showImp(){var inp=document.createElement('input');inp.type='file';inp.accept='.csv';inp.onchange=function(){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var lines=e.target.result.split('\n'),d=gD(),br=d.events[CE].brands,mx=0,ct=0;br.forEach(function(b){if(b.id>mx)mx=b.id});lines.forEach(function(l){var p=l.split(',').map(function(s){return s.trim().replace(/"/g,'')});if(p[0]&&p[0].toLowerCase()!=='brand'){mx++;ct++;br.push({id:mx,brand:p[0],category:p[1]||'CEPC',poc:p[2]||d.pocs[0],am:p[3]||'TBD',preArt:dW(),art:dW()})}});sD(d);rT();toast(ct+' imported!')};r.readAsText(f)};inp.click()}
-function showAdd(){var n=prompt('Brand:');if(!n)return;var d=gD(),c=prompt('Category (CEPC/CPG/OHL/Softlines/GCS):','CEPC'),p=prompt('POC:',d.pocs),am=prompt('AM:','TBD'),br=d.events[CE].brands,mx=0;br.forEach(function(b){if(b.id>mx)mx=b.id});var newB={id:mx+1,brand:n,category:c||'CEPC',poc:p||d.pocs,am:am||'TBD',preArt:dW(),art:dW()};br.push(newB);localStorage.setItem('hve18',JSON.stringify(d));rT();toast(n+' added!');_saving=true;fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',event:CE,brand:newB})}).then(function(r){return r.json()}).then(function(res){if(res.id){var d2=gD();var b=d2.events[CE].brands.find(function(x){return x.brand===newB.brand&&x.poc===newB.poc});if(b)b.id=res.id;localStorage.setItem('hve18',JSON.stringify(d2))}_saving=false}).catch(function(){_saving=false})}
+function addB(){var n=document.getElementById('AI').value.trim();if(!n){toast('Enter brand');return}var d=gD(),br=d.events[CE].brands,mx=0;br.forEach(function(b){if(b.id>mx)mx=b.id});var newB={id:mx+1,brand:n,category:document.getElementById('AIC').value,poc:U,am:document.getElementById('AIM').value||'TBD',preArt:dW(),art:dW()};br.push(newB);localStorage.setItem('hve18',JSON.stringify(d));document.getElementById('AI').value='';document.getElementById('AIM').value='';rT();toast(n+' added!');_saving=true;fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',event:CE,brand:newB})}).then(function(r){return r.json()}).then(function(res){if(res.id){var d2=gD();var b2=d2.events[CE].brands.find(function(x){return x.brand===newB.brand&&x.poc===newB.poc&&x.am===newB.am});if(b2)b2.id=res.id;localStorage.setItem('hve18',JSON.stringify(d2))}_saving=false}).catch(function(){_saving=false})}
 
 function rT(){
 rTB();renderAFP();
