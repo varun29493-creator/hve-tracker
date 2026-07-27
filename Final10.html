@@ -197,9 +197,7 @@ function sD(d,changedBrand){
 
  
 function autoSync(){
-  // Don't sync while actively saving
   if(_savingCount>0)return;
-  // Don't sync within 8 seconds of last save
   if(Date.now()-_lastSaveTime<8000)return;
 
   fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
@@ -211,28 +209,32 @@ function autoSync(){
     var localBrands=d.events[CE].brands;
     var cloudBrands=res.brands;
 
-    // SAFETY: If cloud returns empty but we have data, don't overwrite
     if(cloudBrands.length===0&&localBrands.length>0)return;
-
-    // SAFETY: If cloud has significantly fewer brands (>30% drop), don't overwrite
     if(localBrands.length>5&&cloudBrands.length<localBrands.length*0.7)return;
 
-    // MERGE instead of replace
     var merged=[];
 
-    // Start with cloud brands (source of truth for data from other users)
     cloudBrands.forEach(function(cb){
       var local=localBrands.find(function(x){return x.id===cb.id});
       if(local){
-        // Brand exists locally — use cloud version (has other users' changes)
-        merged.push(cb);
+        if(_savingCount>0||Date.now()-_lastSaveTime<10000){
+          merged.push(local);
+        } else {
+          merged.push(cb);
+        }
       } else {
-        // New brand from another user — add it
         merged.push(cb);
       }
     });
 
-    // Check if anything actually changed
+    // Keep locally added brands that haven't reached cloud yet
+    localBrands.forEach(function(lb){
+      var inCloud=cloudBrands.find(function(x){return x.id===lb.id});
+      if(!inCloud){
+        merged.push(lb);
+      }
+    });
+
     var oldJ=JSON.stringify(localBrands);
     var newJ=JSON.stringify(merged);
     if(oldJ!==newJ){
@@ -243,6 +245,7 @@ function autoSync(){
   })
   .catch(function(){});
 }
+
 
 
 
