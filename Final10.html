@@ -197,11 +197,51 @@ function sD(d,changedBrand){
 
  
 function autoSync(){
+  // Don't sync while actively saving
   if(_savingCount>0)return;
+  // Don't sync within 8 seconds of last save
   if(Date.now()-_lastSaveTime<8000)return;
-  fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){
-    if(res.success&&res.brands){var d=gD();var oldJ=JSON.stringify(d.events[CE].brands);var newJ=JSON.stringify(res.brands);if(oldJ!==newJ){d.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d));rT()}}
-  }).catch(function(){});
+
+  fetch(API_URL+'?action=read&event='+encodeURIComponent(CE))
+  .then(function(r){return r.json()})
+  .then(function(res){
+    if(!res.success||!res.brands)return;
+
+    var d=gD();
+    var localBrands=d.events[CE].brands;
+    var cloudBrands=res.brands;
+
+    // SAFETY: If cloud returns empty but we have data, don't overwrite
+    if(cloudBrands.length===0&&localBrands.length>0)return;
+
+    // SAFETY: If cloud has significantly fewer brands (>30% drop), don't overwrite
+    if(localBrands.length>5&&cloudBrands.length<localBrands.length*0.7)return;
+
+    // MERGE instead of replace
+    var merged=[];
+
+    // Start with cloud brands (source of truth for data from other users)
+    cloudBrands.forEach(function(cb){
+      var local=localBrands.find(function(x){return x.id===cb.id});
+      if(local){
+        // Brand exists locally — use cloud version (has other users' changes)
+        merged.push(cb);
+      } else {
+        // New brand from another user — add it
+        merged.push(cb);
+      }
+    });
+
+    // Check if anything actually changed
+    var oldJ=JSON.stringify(localBrands);
+    var newJ=JSON.stringify(merged);
+    if(oldJ!==newJ){
+      d.events[CE].brands=merged;
+      localStorage.setItem('hve18',JSON.stringify(d));
+      rT();
+    }
+  })
+  .catch(function(){});
 }
 
 
@@ -312,7 +352,21 @@ function wC(id,wf,w){var h='';h+='<td>'+mPart(id,wf,w.participation)+'</td>';h+=
 function mPart(id,wf,v){var c=v==='Confirmed'?'#d4edda':v==='Not Participating'?'#eee':'#fff3cd';return'<select style="background:'+c+';font-size:10px;padding:2px;border:1px solid #ddd;border-radius:3px" onchange="uW('+id+',\''+wf+'\',\'participation\',this.value)"><option'+(v==='Confirmed'?' selected':'')+'>Confirmed</option><option'+(v==='Pending Confirmation'?' selected':'')+'>Pending</option><option'+(v==='Not Participating'?' selected':'')+'>No</option></select>'}
 function mO(id,wf,f,v,opts){var h='<select onchange="uW('+id+',\''+wf+'\',\''+f+'\',this.value)">';opts.forEach(function(o){h+='<option value="'+o+'"'+(o===v?' selected':'')+'>'+(o||'-')+'</option>'});return h+'</select>'}
 function mSel(t,id,v,opts){var h='<select onchange="uBF('+id+',\''+t+'\',this.value)">';opts.forEach(function(o){h+='<option'+(o===v?' selected':'')+'>'+o+'</option>'});return h+'</select>'}
-function uW(id,wf,f,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(f==='participation'){v=v==='Pending'?'Pending Confirmation':v==='No'?'Not Participating':v}b[wf][f]=v;sD(d,b)}
+function uW(id,wf,f,v){
+  var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});
+  if(!b)return;
+  if(f==='participation'){v=v==='Pending'?'Pending Confirmation':v==='No'?'Not Participating':v}
+  b[wf][f]=v;
+  localStorage.setItem('hve18',JSON.stringify(d));
+  document.getElementById('SV').style.display='block';
+  setTimeout(function(){document.getElementById('SV').style.display='none'},1200);
+  _savingCount++;
+  fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'updateField',event:CE,id:id,wf:wf,field:f,value:v})})
+  .then(function(){_savingCount--;_lastSaveTime=Date.now()})
+  .catch(function(){_savingCount--;_lastSaveTime=Date.now()});
+}
+  
 function uBF(id,t,v){var d=gD(),b=d.events[CE].brands.find(function(x){return x.id===id});if(!b)return;if(t==='cat')b.category=v;else b.poc=v;sD(d,b)}
 
 function selRow(id,c){if(c){if(SEL.indexOf(id)===-1)SEL.push(id)}else SEL=SEL.filter(function(x){return x!==id});rT()}
