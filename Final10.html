@@ -182,7 +182,7 @@ function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTM
 })();
 
 
-var _saving=false;
+var _saving=false;var _lastSaveTime=0;
 function sD(d,changedBrand){
   localStorage.setItem('hve18',JSON.stringify(d));
   document.getElementById('SV').style.display='block';
@@ -190,13 +190,14 @@ function sD(d,changedBrand){
   if(changedBrand){
     _saving=true;
     fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',event:CE,brand:changedBrand})})
-    .then(function(){_saving=false}).catch(function(){_saving=false});
+        .then(function(){_saving=false;_lastSaveTime=Date.now()}).catch(function(){_saving=false;_lastSaveTime=Date.now()});
   }
 }
 
  
 function autoSync(){
   if(_saving)return;
+  if(Date.now()-_lastSaveTime<5000)return;
   fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){
     if(res.success&&res.brands){var d=gD();d.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d));rT()}
   }).catch(function(){});
