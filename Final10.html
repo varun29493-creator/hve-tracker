@@ -183,6 +183,8 @@ function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTM
 
 
 var _savingCount=0;var _lastSaveTime=0;
+  window.addEventListener('beforeunload',function(e){if(_savingCount>0){e.preventDefault();e.returnValue='Save in progress...';return e.returnValue}});
+
 function sD(d,changedBrand){
   localStorage.setItem('hve18',JSON.stringify(d));
   document.getElementById('SV').style.display='block';
@@ -277,7 +279,7 @@ function toggleRole(){R=R==='poc'?'manager':'poc';if(R==='manager'){document.get
 
 function popEv(){var d=gD(),s=document.getElementById('ES');s.innerHTML=Object.keys(d.events).map(function(k){return'<option'+(k===CE?' selected':'')+'>'+k+'</option>'}).join('');updEI()}
 
-function switchEv(){CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;localStorage.setItem('hve18',JSON.stringify(d));updEI();fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){if(res.success&&res.brands&&res.brands.length>0){var d2=gD();d2.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d2));rT()}}).catch(function(){rT()})}
+function switchEv(){if(_savingCount>0){toast('⚠️ Save in progress...');return}CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;localStorage.setItem('hve18',JSON.stringify(d));updEI();fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){if(res.success&&res.brands&&res.brands.length>0){var d2=gD();d2.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d2));rT()}}).catch(function(){rT()})}
 
 
 
@@ -315,7 +317,7 @@ function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search b
 
 
   function clearAll(){FLT={};rT();renderAFP()}
-function toggleHP(){HP=!HP;rT()}
+function toggleHP(){if(_savingCount>0){toast('⚠️ Save in progress...');return}HP=!HP;rT()}
 
 function showAdd(){var n=prompt('Brand:');if(!n)return;var d=gD(),c=prompt('Category (CEPC/CPG/OHL/Softlines/GCS):','CEPC'),p=prompt('POC:',d.pocs),am=prompt('AM:','TBD'),br=d.events[CE].brands;var newB={id:crypto.randomUUID(),brand:n,category:c||'CEPC',poc:p||d.pocs,am:am||'TBD',preArt:dW(),art:dW()};br.push(newB);localStorage.setItem('hve18',JSON.stringify(d));rT();toast(n+' added!');_savingCount++;fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',event:CE,brand:newB})}).then(function(){_savingCount--;_lastSaveTime=Date.now()}).catch(function(){_savingCount--;_lastSaveTime=Date.now();toast('⚠️ Save failed - check connection')})}
   
