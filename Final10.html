@@ -571,7 +571,7 @@ function dlRpt(){var a=document.createElement('a');a.href=URL.createObjectURL(ne
 function rAd(){var d=gD(),e=gE();if(e){document.getElementById('SD1').value=e.preArtDate||'';document.getElementById('SD2').value=e.artDate||''}document.getElementById('PL').innerHTML=d.pocs.map(function(p){return'<span class="pc">'+p+' <span class="x" onclick="rmPoc(\''+p+'\')">x</span></span>'}).join('')}
 function saveDates(){var d=gD();d.events[CE].preArtDate=document.getElementById('SD1').value;d.events[CE].artDate=document.getElementById('SD2').value;sD(d);updEI();toast('Saved!')}
 function addPoc(){var n=document.getElementById('NP').value.trim();if(!n)return;var d=gD();if(d.pocs.indexOf(n)>-1){toast('Exists');return}d.pocs.push(n);sD(d);rAd();document.getElementById('NP').value='';toast(n+' added!')}
-function rmPoc(n){if(!confirm('Remove '+n+'?'))return;var d=gD();d.pocs=d.pocs.filter(function(p){return p!==n});sD(d);rAd()}
+function rmPoc(n){if(!confirm('Remove '+n+'?'))return;var d=gD();d.pocs=d.pocs.filter(function(p){return p!==n});sD(d);rAd();fetch(API_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveConfig',config:{events:d.events,pocs:d.pocs}})}).catch(function(){})}
 function initApp(){popEv();rT();setInterval(autoSync,15000)}
 
 
