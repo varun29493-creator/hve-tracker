@@ -160,7 +160,7 @@ function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTM
 (function(){
   updateLoginDropdown();
   var d=gD();
-  CE = d.currentEvent||Object.keys(d.events);
+  CE = d.currentEvent || Object.keys(d.events)[0];
   var s=localStorage.getItem('hve18_u');
   if(s&&d.pocs.indexOf(s)>-1){
     U=s;
