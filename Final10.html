@@ -156,7 +156,8 @@ function gB(){var e=gE();return e?e.brands:[]}
 function dW(){return{participation:'Pending Confirmation',followup:0,sourcing:'Pending',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'}}
 function toast(m){var e=document.getElementById('TT');e.textContent=m;e.style.display='block';setTimeout(function(){e.style.display='none'},2200)}
 function dU(s){if(!s)return 999;return Math.ceil((new Date(s+'T00:00:00').getTime()-new Date(new Date().toDateString()).getTime())/86400000)}
-function updateLoginDropdown(){var d=gD();document.getElementById('LP').innerHTML=d.pocs.map(function(p){return'<option>'+p+'</option>'}).join('')}
+function updateLoginDropdown(){var d=gD();var all=DP.slice();d.pocs.forEach(function(p){if(all.indexOf(p)===-1)all.push(p)});document.getElementById('LP').innerHTML=all.map(function(p){return'<option>'+p+'</option>'}).join('')}
+
 
 (function(){
   var d=gD();
