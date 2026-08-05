@@ -167,8 +167,8 @@ function updateLoginDropdown(){var d=gD();var all=DP.slice();d.pocs.forEach(func
   }).catch(function(){updateLoginDropdown()});
 
   CE = d.currentEvent || Object.keys(d.events)[0];
-  var s=localStorage.getItem('hve18_u');
-  if(s&&d.pocs.indexOf(s)>-1){
+ var s=localStorage.getItem('hve18_u');
+if(s){
     U=s;
     document.getElementById('LS').style.display='none';
     document.getElementById('UB').textContent='POC: '+U;
