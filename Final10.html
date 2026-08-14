@@ -285,7 +285,7 @@ function toggleRole(){R=R==='poc'?'manager':'poc';if(R==='manager'){document.get
 
 function popEv(){var d=gD(),s=document.getElementById('ES');s.innerHTML=Object.keys(d.events).map(function(k){return'<option'+(k===CE?' selected':'')+'>'+k+'</option>'}).join('');updEI()}
 
-function switchEv(){if(_savingCount>0){toast('⚠️ Save in progress...');return}CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;localStorage.setItem('hve18',JSON.stringify(d));updEI();fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){if(res.success&&res.brands&&res.brands.length>0){var d2=gD();d2.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d2));rT()}}).catch(function(){rT()})}
+function switchEv(){if(_savingCount>0){toast('⚠️ Save in progress...');return}CE=document.getElementById('ES').value;var d=gD();d.currentEvent=CE;if(!d.events[CE])d.events[CE]={preArtDate:'',artDate:'',brands:[]};localStorage.setItem('hve18',JSON.stringify(d));updEI();rT();fetch(API_URL+'?action=read&event='+encodeURIComponent(CE)).then(function(r){return r.json()}).then(function(res){if(res.success&&res.brands){var d2=gD();d2.events[CE].brands=res.brands;localStorage.setItem('hve18',JSON.stringify(d2));rT()}}).catch(function(){})}
 
 
 
