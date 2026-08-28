@@ -589,6 +589,152 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
 
 
 </script>
+  
+<!-- ===== PASTE THIS ENTIRE BLOCK BEFORE </body> IN YOUR FILE ===== -->
+<script>
+(function() {
+    // Wait for page to fully load
+    window.addEventListener('load', function() {
+        // Run every 500ms to catch dynamically rendered tables
+        setInterval(addEditButtons, 500);
+    });
+
+    function addEditButtons() {
+        // Find all table rows that have brand/AM data
+        const tables = document.querySelectorAll('table');
+        
+        tables.forEach(table => {
+            const headers = table.querySelectorAll('th');
+            let brandColIndex = -1;
+            let amColIndex = -1;
+
+            // Find which columns are Brand and AM Name
+            headers.forEach((th, index) => {
+                const text = th.textContent.trim().toLowerCase();
+                if (text.includes('brand') && !th.dataset.editEnabled) {
+                    brandColIndex = index;
+                    th.dataset.editEnabled = 'true';
+                }
+                if ((text.includes('am') || text.includes('account manager')) && !th.dataset.editEnabled) {
+                    amColIndex = index;
+                    th.dataset.editEnabled = 'true';
+                }
+            });
+
+            // Add edit buttons to matching cells
+            const rows = table.querySelectorAll('tbody tr, tr:not(:first-child)');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                
+                [brandColIndex, amColIndex].forEach(colIndex => {
+                    if (colIndex >= 0 && cells[colIndex] && !cells[colIndex].dataset.editReady) {
+                        cells[colIndex].dataset.editReady = 'true';
+                        const originalText = cells[colIndex].textContent.trim();
+                        
+                        cells[colIndex].innerHTML = 
+                            '<span class="ev-text">' + originalText + '</span> ' +
+                            '<button class="ev-edit-btn" title="Click to edit">✏️</button>';
+                        
+                        // Add click handler
+                        cells[colIndex].querySelector('.ev-edit-btn').addEventListener('click', function() {
+                            startEdit(cells[colIndex]);
+                        });
+                    }
+                });
+            });
+        });
+    }
+
+    function startEdit(cell) {
+        const currentText = cell.querySelector('.ev-text').textContent.trim();
+        
+        cell.innerHTML = 
+            '<input type="text" class="ev-input" value="' + currentText + '" />' +
+            '<button class="ev-save">✓</button>' +
+            '<button class="ev-cancel">✗</button>';
+        
+        const input = cell.querySelector('.ev-input');
+        input.focus();
+        input.select();
+
+        // Save on click
+        cell.querySelector('.ev-save').addEventListener('click', function() {
+            finishEdit(cell, input.value.trim(), currentText);
+        });
+
+        // Cancel on click
+        cell.querySelector('.ev-cancel').addEventListener('click', function() {
+            finishEdit(cell, currentText, currentText);
+        });
+
+        // Save on Enter, Cancel on Escape
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') finishEdit(cell, input.value.trim(), currentText);
+            if (e.key === 'Escape') finishEdit(cell, currentText, currentText);
+        });
+    }
+
+    function finishEdit(cell, newValue, oldValue) {
+        if (!newValue) newValue = oldValue; // Don't allow blank
+
+        cell.innerHTML = 
+            '<span class="ev-text">' + newValue + '</span> ' +
+            '<button class="ev-edit-btn" title="Click to edit">✏️</button>';
+        
+        cell.querySelector('.ev-edit-btn').addEventListener('click', function() {
+            startEdit(cell);
+        });
+
+        // Save to localStorage if value changed
+        if (newValue !== oldValue) {
+            saveChange(oldValue, newValue);
+            showSavedMessage();
+        }
+    }
+
+    function saveChange(oldVal, newVal) {
+        // Update in any localStorage data that contains the old value
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            try {
+                let data = localStorage.getItem(key);
+                if (data && data.includes(oldVal)) {
+                    data = data.split(oldVal).join(newVal);
+                    localStorage.setItem(key, data);
+                }
+            } catch(e) {}
+        });
+    }
+
+    function showSavedMessage() {
+        let toast = document.getElementById('ev-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'ev-toast';
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0073bb;color:white;padding:12px 24px;border-radius:8px;font-size:14px;z-index:99999;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = '✓ Saved successfully!';
+        toast.style.display = 'block';
+        setTimeout(function() { toast.style.display = 'none'; }, 2000);
+    }
+
+    // Add styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .ev-edit-btn { background:none; border:none; cursor:pointer; font-size:14px; opacity:0.5; transition:opacity 0.2s; }
+        .ev-edit-btn:hover { opacity:1; }
+        .ev-input { border:1px solid #0073bb; border-radius:4px; padding:4px 8px; font-size:13px; width:140px; }
+        .ev-save { background:#0073bb; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; margin-left:4px; font-size:14px; }
+        .ev-cancel { background:#eee; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; margin-left:2px; font-size:14px; }
+    `;
+    document.head.appendChild(style);
+})();
+</script>
+
+
+
 </body>
+  
 </html>
 
