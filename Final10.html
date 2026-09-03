@@ -592,204 +592,261 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
   
 <!-- ===== PASTE THIS ENTIRE BLOCK BEFORE </body> IN YOUR FILE ===== -->
 
-<!-- ===== PASTE THIS ENTIRE BLOCK BEFORE </body> IN YOUR FILE ===== -->
-<script>
-(function() {
-    window.addEventListener('load', function() {
-        setInterval(addEditButtons, 500);
+
+(function () {
+  window.addEventListener('load', function () {
+    setInterval(addEditButtons, 500);
+  });
+
+  function addEditButtons() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      const headers = table.querySelectorAll('th');
+      let brandColIndex = -1;
+      let amColIndex = -1;
+
+      headers.forEach((th, index) => {
+        const text = th.textContent.trim().toLowerCase();
+        if (text.includes('brand') && !th.dataset.editEnabled) {
+          brandColIndex = index;
+          th.dataset.editEnabled = 'true';
+        }
+        if ((text.includes('am') || text.includes('account manager')) && !th.dataset.editEnabled) {
+          amColIndex = index;
+          th.dataset.editEnabled = 'true';
+        }
+      });
+
+      const rows = table.querySelectorAll('tbody tr, tr:not(:first-child)');
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+
+        // Brand column — bold text, blue edit icon
+        if (brandColIndex >= 0 && cells[brandColIndex] && !cells[brandColIndex].dataset.editReady) {
+          setupCell(cells[brandColIndex], 'brand');
+        }
+
+        // AM column — regular text, grey edit icon
+        if (amColIndex >= 0 && cells[amColIndex] && !cells[amColIndex].dataset.editReady) {
+          setupCell(cells[amColIndex], 'am');
+        }
+      });
     });
+  }
 
-    function addEditButtons() {
-        const tables = document.querySelectorAll('table');
-        
-        tables.forEach(table => {
-            const headers = table.querySelectorAll('th');
-            let brandColIndex = -1;
-            let amColIndex = -1;
+  function setupCell(cell, fieldType) {
+    cell.dataset.editReady = 'true';
+    cell.classList.add('ev-cell', 'ev-' + fieldType);
+    const originalText = cell.textContent.trim();
 
-            headers.forEach((th, index) => {
-                const text = th.textContent.trim().toLowerCase();
-                if (text.includes('brand') && !th.dataset.editEnabled) {
-                    brandColIndex = index;
-                    th.dataset.editEnabled = 'true';
-                }
-                if ((text.includes('am') || text.includes('account manager')) && !th.dataset.editEnabled) {
-                    amColIndex = index;
-                    th.dataset.editEnabled = 'true';
-                }
-            });
+    const textClass = fieldType === 'brand' ? 'ev-text ev-brand-text' : 'ev-text ev-am-text';
+    const iconClass = fieldType === 'brand' ? 'ev-edit-icon ev-brand-icon' : 'ev-edit-icon ev-am-icon';
+    const iconLabel = fieldType === 'brand' ? 'Edit Brand' : 'Edit AM';
 
-            const rows = table.querySelectorAll('tbody tr, tr:not(:first-child)');
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                
-                [brandColIndex, amColIndex].forEach(colIndex => {
-                    if (colIndex >= 0 && cells[colIndex] && !cells[colIndex].dataset.editReady) {
-                        cells[colIndex].dataset.editReady = 'true';
-                        cells[colIndex].classList.add('ev-cell');
-                        const originalText = cells[colIndex].textContent.trim();
-                        
-                        cells[colIndex].innerHTML = 
-                            '<span class="ev-text">' + originalText + '</span>' +
-                            '<span class="ev-edit-icon" title="Click to edit">✏️</span>';
-                        
-                        cells[colIndex].querySelector('.ev-edit-icon').addEventListener('click', function() {
-                            startEdit(cells[colIndex]);
-                        });
-                    }
-                });
-            });
-        });
+    cell.innerHTML =
+      '<span class="' + textClass + '">' + originalText + '</span>' +
+      '<span class="' + iconClass + '" title="' + iconLabel + '">✏️</span>';
+
+    cell.querySelector('.ev-edit-icon').addEventListener('click', function () {
+      startEdit(cell, fieldType);
+    });
+  }
+
+  function startEdit(cell, fieldType) {
+    const currentText = cell.querySelector('.ev-text').textContent.trim();
+    const inputClass = fieldType === 'brand' ? 'ev-input ev-input-brand' : 'ev-input ev-input-am';
+    const saveClass = fieldType === 'brand' ? 'ev-save ev-save-brand' : 'ev-save ev-save-am';
+
+    cell.innerHTML =
+      '<div class="ev-edit-row">' +
+      '<input type="text" class="' + inputClass + '" value="' + currentText + '" />' +
+      '<button class="' + saveClass + '" title="Save">✓</button>' +
+      '<button class="ev-cancel" title="Cancel">✗</button>' +
+      '</div>';
+
+    const input = cell.querySelector('.ev-input');
+    input.focus();
+    input.select();
+
+    cell.querySelector('.ev-save').addEventListener('click', function () {
+      finishEdit(cell, input.value.trim(), currentText, fieldType);
+    });
+    cell.querySelector('.ev-cancel').addEventListener('click', function () {
+      finishEdit(cell, currentText, currentText, fieldType);
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') finishEdit(cell, input.value.trim(), currentText, fieldType);
+      if (e.key === 'Escape') finishEdit(cell, currentText, currentText, fieldType);
+    });
+  }
+
+  function finishEdit(cell, newValue, oldValue, fieldType) {
+    if (!newValue) newValue = oldValue;
+    setupCellContent(cell, newValue, fieldType);
+
+    if (newValue !== oldValue) {
+      saveChange(oldValue, newValue);
+      showSavedMessage(fieldType);
+    }
+  }
+
+  function setupCellContent(cell, text, fieldType) {
+    const textClass = fieldType === 'brand' ? 'ev-text ev-brand-text' : 'ev-text ev-am-text';
+    const iconClass = fieldType === 'brand' ? 'ev-edit-icon ev-brand-icon' : 'ev-edit-icon ev-am-icon';
+    const iconLabel = fieldType === 'brand' ? 'Edit Brand' : 'Edit AM';
+
+    cell.innerHTML =
+      '<span class="' + textClass + '">' + text + '</span>' +
+      '<span class="' + iconClass + '" title="' + iconLabel + '">✏️</span>';
+
+    cell.querySelector('.ev-edit-icon').addEventListener('click', function () {
+      startEdit(cell, fieldType);
+    });
+  }
+
+  function saveChange(oldVal, newVal) {
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      try {
+        let data = localStorage.getItem(key);
+        if (data && data.includes(oldVal)) {
+          data = data.split(oldVal).join(newVal);
+          localStorage.setItem(key, data);
+        }
+      } catch (e) {}
+    });
+  }
+
+  function showSavedMessage(fieldType) {
+    let toast = document.getElementById('ev-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'ev-toast';
+      document.body.appendChild(toast);
     }
 
-    function startEdit(cell) {
-        const currentText = cell.querySelector('.ev-text').textContent.trim();
-        
-        cell.innerHTML = 
-            '<div class="ev-edit-row">' +
-            '<input type="text" class="ev-input" value="' + currentText + '" />' +
-            '<button class="ev-save" title="Save">✓</button>' +
-            '<button class="ev-cancel" title="Cancel">✗</button>' +
-            '</div>';
-        
-        const input = cell.querySelector('.ev-input');
-        input.focus();
-        input.select();
+    const label = fieldType === 'brand' ? 'Brand' : 'AM';
+    toast.textContent = '✓ ' + label + ' updated successfully!';
+    toast.className = 'ev-toast-show ev-toast-' + fieldType;
+    setTimeout(function () { toast.className = ''; }, 2500);
+  }
 
-        cell.querySelector('.ev-save').addEventListener('click', function() {
-            finishEdit(cell, input.value.trim(), currentText);
-        });
+  // Styles — Brand bold + blue accents, AM regular + grey accents
+  const style = document.createElement('style');
+  style.textContent = `
+    .ev-cell { position: relative; }
 
-        cell.querySelector('.ev-cancel').addEventListener('click', function() {
-            finishEdit(cell, currentText, currentText);
-        });
-
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') finishEdit(cell, input.value.trim(), currentText);
-            if (e.key === 'Escape') finishEdit(cell, currentText, currentText);
-        });
+    /* --- Brand text: BOLD --- */
+    .ev-brand-text {
+      font-weight: 700;
+      color: #0f1111;
     }
 
-    function finishEdit(cell, newValue, oldValue) {
-        if (!newValue) newValue = oldValue;
-
-        cell.innerHTML = 
-            '<span class="ev-text">' + newValue + '</span>' +
-            '<span class="ev-edit-icon" title="Click to edit">✏️</span>';
-        
-        cell.querySelector('.ev-edit-icon').addEventListener('click', function() {
-            startEdit(cell);
-        });
-
-        if (newValue !== oldValue) {
-            saveChange(oldValue, newValue);
-            showSavedMessage();
-        }
+    /* --- AM text: Regular weight --- */
+    .ev-am-text {
+      font-weight: 400;
+      color: #333;
     }
 
-    function saveChange(oldVal, newVal) {
-        const keys = Object.keys(localStorage);
-        keys.forEach(key => {
-            try {
-                let data = localStorage.getItem(key);
-                if (data && data.includes(oldVal)) {
-                    data = data.split(oldVal).join(newVal);
-                    localStorage.setItem(key, data);
-                }
-            } catch(e) {}
-        });
+    /* --- Edit icons (hidden until hover) --- */
+    .ev-edit-icon {
+      display: none;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: 6px;
+      transition: opacity 0.2s;
+    }
+    .ev-cell:hover .ev-edit-icon { display: inline; }
+
+    /* Brand edit icon — blue tint */
+    .ev-brand-icon { opacity: 0.7; filter: hue-rotate(200deg); }
+    .ev-brand-icon:hover { opacity: 1; }
+
+    /* AM edit icon — neutral grey */
+    .ev-am-icon { opacity: 0.5; }
+    .ev-am-icon:hover { opacity: 0.9; }
+
+    /* --- Edit mode --- */
+    .ev-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ev-input {
+      border: 1px solid #aaa;
+      border-radius: 3px;
+      padding: 3px 6px;
+      font-size: inherit;
+      font-family: inherit;
+      width: 100%;
+      max-width: 180px;
+      outline: none;
     }
 
-    function showSavedMessage() {
-        let toast = document.getElementById('ev-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'ev-toast';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = '✓ Saved successfully!';
-        toast.className = 'ev-toast-show';
-        setTimeout(function() { toast.className = ''; }, 2000);
+    /* Brand input — bold text, blue focus ring */
+    .ev-input-brand {
+      font-weight: 700;
+      border-color: #0073bb;
+    }
+    .ev-input-brand:focus {
+      border-color: #0073bb;
+      box-shadow: 0 0 0 2px rgba(0, 115, 187, 0.2);
     }
 
-    // Clean, minimal styles
-    const style = document.createElement('style');
-    style.textContent = `
-        /* Edit icon hidden by default, shows on hover */
-        .ev-cell { position: relative; }
-        .ev-edit-icon {
-            display: none;
-            font-size: 12px;
-            cursor: pointer;
-            margin-left: 6px;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-        .ev-cell:hover .ev-edit-icon {
-            display: inline;
-        }
-        .ev-edit-icon:hover {
-            opacity: 1;
-        }
+    /* AM input — regular text, grey focus ring */
+    .ev-input-am {
+      font-weight: 400;
+      border-color: #999;
+    }
+    .ev-input-am:focus {
+      border-color: #666;
+      box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.15);
+    }
 
-        /* Edit mode */
-        .ev-edit-row {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .ev-input {
-            border: 1px solid #aaa;
-            border-radius: 3px;
-            padding: 3px 6px;
-            font-size: inherit;
-            font-family: inherit;
-            width: 100%;
-            max-width: 180px;
-            outline: none;
-        }
-        .ev-input:focus {
-            border-color: #0073bb;
-            box-shadow: 0 0 0 2px rgba(0,115,187,0.15);
-        }
-        .ev-save, .ev-cancel {
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 13px;
-            padding: 3px 7px;
-            line-height: 1;
-        }
-        .ev-save { background: #0073bb; color: white; }
-        .ev-save:hover { background: #005d99; }
-        .ev-cancel { background: #f0f0f0; color: #555; }
-        .ev-cancel:hover { background: #ddd; }
+    /* --- Save buttons --- */
+    .ev-save, .ev-cancel {
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 3px 7px;
+      line-height: 1;
+    }
+    .ev-save-brand { background: #0073bb; color: white; }
+    .ev-save-brand:hover { background: #005d99; }
+    .ev-save-am { background: #555; color: white; }
+    .ev-save-am:hover { background: #333; }
+    .ev-cancel { background: #f0f0f0; color: #555; }
+    .ev-cancel:hover { background: #ddd; }
 
-        /* Toast notification */
-        #ev-toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #1a8c1a;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 13px;
-            z-index: 99999;
-            display: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .ev-toast-show {
-            display: block !important;
-            animation: evFadeIn 0.3s ease;
-        }
-        @keyframes evFadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    `;
-    document.head.appendChild(style);
+    /* --- Toast notifications --- */
+    #ev-toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      z-index: 99999;
+      display: none;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .ev-toast-show { display: block !important; animation: evFadeIn 0.3s ease; }
+    .ev-toast-brand { background: #0073bb; }
+    .ev-toast-am { background: #555; }
+
+    @keyframes evFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+  document.head.appendChild(style);
 })();
+
+
 </script>
 
 
