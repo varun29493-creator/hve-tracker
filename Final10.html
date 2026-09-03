@@ -593,21 +593,23 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
 <!-- ===== PASTE THIS ENTIRE BLOCK BEFORE </body> IN YOUR FILE ===== -->
 
 
+
+<script>
 (function () {
   window.addEventListener('load', function () {
     setInterval(addEditButtons, 500);
   });
 
   function addEditButtons() {
-    const tables = document.querySelectorAll('table');
+    var tables = document.querySelectorAll('table');
 
-    tables.forEach(table => {
-      const headers = table.querySelectorAll('th');
-      let brandColIndex = -1;
-      let amColIndex = -1;
+    tables.forEach(function (table) {
+      var headers = table.querySelectorAll('th');
+      var brandColIndex = -1;
+      var amColIndex = -1;
 
-      headers.forEach((th, index) => {
-        const text = th.textContent.trim().toLowerCase();
+      headers.forEach(function (th, index) {
+        var text = th.textContent.trim().toLowerCase();
         if (text.includes('brand') && !th.dataset.editEnabled) {
           brandColIndex = index;
           th.dataset.editEnabled = 'true';
@@ -618,17 +620,15 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
         }
       });
 
-      const rows = table.querySelectorAll('tbody tr, tr:not(:first-child)');
+      var rows = table.querySelectorAll('tbody tr, tr:not(:first-child)');
 
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
+      rows.forEach(function (row) {
+        var cells = row.querySelectorAll('td');
 
-        // Brand column — bold text, blue edit icon
         if (brandColIndex >= 0 && cells[brandColIndex] && !cells[brandColIndex].dataset.editReady) {
           setupCell(cells[brandColIndex], 'brand');
         }
 
-        // AM column — regular text, grey edit icon
         if (amColIndex >= 0 && cells[amColIndex] && !cells[amColIndex].dataset.editReady) {
           setupCell(cells[amColIndex], 'am');
         }
@@ -639,15 +639,14 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
   function setupCell(cell, fieldType) {
     cell.dataset.editReady = 'true';
     cell.classList.add('ev-cell', 'ev-' + fieldType);
-    const originalText = cell.textContent.trim();
+    var originalText = cell.textContent.trim();
 
-    const textClass = fieldType === 'brand' ? 'ev-text ev-brand-text' : 'ev-text ev-am-text';
-    const iconClass = fieldType === 'brand' ? 'ev-edit-icon ev-brand-icon' : 'ev-edit-icon ev-am-icon';
-    const iconLabel = fieldType === 'brand' ? 'Edit Brand' : 'Edit AM';
+    var textCls = fieldType === 'brand' ? 'ev-text ev-brand-text' : 'ev-text ev-am-text';
+    var iconCls = fieldType === 'brand' ? 'ev-edit-icon ev-brand-icon' : 'ev-edit-icon ev-am-icon';
+    var iconLabel = fieldType === 'brand' ? 'Edit Brand' : 'Edit AM';
 
-    cell.innerHTML =
-      '<span class="' + textClass + '">' + originalText + '</span>' +
-      '<span class="' + iconClass + '" title="' + iconLabel + '">✏️</span>';
+    cell.innerHTML = '<span class="' + textCls + '">' + originalText + '</span>' +
+      '<span class="' + iconCls + '" title="' + iconLabel + '">\u270F\uFE0F</span>';
 
     cell.querySelector('.ev-edit-icon').addEventListener('click', function () {
       startEdit(cell, fieldType);
@@ -655,18 +654,17 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
   }
 
   function startEdit(cell, fieldType) {
-    const currentText = cell.querySelector('.ev-text').textContent.trim();
-    const inputClass = fieldType === 'brand' ? 'ev-input ev-input-brand' : 'ev-input ev-input-am';
-    const saveClass = fieldType === 'brand' ? 'ev-save ev-save-brand' : 'ev-save ev-save-am';
+    var currentText = cell.querySelector('.ev-text').textContent.trim();
+    var inputCls = fieldType === 'brand' ? 'ev-input ev-input-brand' : 'ev-input ev-input-am';
+    var saveCls = fieldType === 'brand' ? 'ev-save ev-save-brand' : 'ev-save ev-save-am';
 
-    cell.innerHTML =
-      '<div class="ev-edit-row">' +
-      '<input type="text" class="' + inputClass + '" value="' + currentText + '" />' +
-      '<button class="' + saveClass + '" title="Save">✓</button>' +
-      '<button class="ev-cancel" title="Cancel">✗</button>' +
+    cell.innerHTML = '<div class="ev-edit-row">' +
+      '<input type="text" class="' + inputCls + '" value="' + currentText + '" />' +
+      '<button class="' + saveCls + '" title="Save">\u2713</button>' +
+      '<button class="ev-cancel" title="Cancel">\u2717</button>' +
       '</div>';
 
-    const input = cell.querySelector('.ev-input');
+    var input = cell.querySelector('.ev-input');
     input.focus();
     input.select();
 
@@ -693,13 +691,12 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
   }
 
   function setupCellContent(cell, text, fieldType) {
-    const textClass = fieldType === 'brand' ? 'ev-text ev-brand-text' : 'ev-text ev-am-text';
-    const iconClass = fieldType === 'brand' ? 'ev-edit-icon ev-brand-icon' : 'ev-edit-icon ev-am-icon';
-    const iconLabel = fieldType === 'brand' ? 'Edit Brand' : 'Edit AM';
+    var textCls = fieldType === 'brand' ? 'ev-text ev-brand-text' : 'ev-text ev-am-text';
+    var iconCls = fieldType === 'brand' ? 'ev-edit-icon ev-brand-icon' : 'ev-edit-icon ev-am-icon';
+    var iconLabel = fieldType === 'brand' ? 'Edit Brand' : 'Edit AM';
 
-    cell.innerHTML =
-      '<span class="' + textClass + '">' + text + '</span>' +
-      '<span class="' + iconClass + '" title="' + iconLabel + '">✏️</span>';
+    cell.innerHTML = '<span class="' + textCls + '">' + text + '</span>' +
+      '<span class="' + iconCls + '" title="' + iconLabel + '">\u270F\uFE0F</span>';
 
     cell.querySelector('.ev-edit-icon').addEventListener('click', function () {
       startEdit(cell, fieldType);
@@ -707,10 +704,10 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
   }
 
   function saveChange(oldVal, newVal) {
-    const keys = Object.keys(localStorage);
-    keys.forEach(key => {
+    var keys = Object.keys(localStorage);
+    keys.forEach(function (key) {
       try {
-        let data = localStorage.getItem(key);
+        var data = localStorage.getItem(key);
         if (data && data.includes(oldVal)) {
           data = data.split(oldVal).join(newVal);
           localStorage.setItem(key, data);
@@ -720,134 +717,54 @@ function doClone(src){document.getElementById('MO3').classList.add('hid');var d=
   }
 
   function showSavedMessage(fieldType) {
-    let toast = document.getElementById('ev-toast');
+    var toast = document.getElementById('ev-toast');
     if (!toast) {
       toast = document.createElement('div');
       toast.id = 'ev-toast';
       document.body.appendChild(toast);
     }
 
-    const label = fieldType === 'brand' ? 'Brand' : 'AM';
-    toast.textContent = '✓ ' + label + ' updated successfully!';
+    var label = fieldType === 'brand' ? 'Brand' : 'AM';
+    toast.textContent = '\u2713 ' + label + ' updated successfully!';
     toast.className = 'ev-toast-show ev-toast-' + fieldType;
     setTimeout(function () { toast.className = ''; }, 2500);
   }
 
-  // Styles — Brand bold + blue accents, AM regular + grey accents
-  const style = document.createElement('style');
-  style.textContent = `
-    .ev-cell { position: relative; }
-
-    /* --- Brand text: BOLD --- */
-    .ev-brand-text {
-      font-weight: 700;
-      color: #0f1111;
-    }
-
-    /* --- AM text: Regular weight --- */
-    .ev-am-text {
-      font-weight: 400;
-      color: #333;
-    }
-
-    /* --- Edit icons (hidden until hover) --- */
-    .ev-edit-icon {
-      display: none;
-      font-size: 12px;
-      cursor: pointer;
-      margin-left: 6px;
-      transition: opacity 0.2s;
-    }
-    .ev-cell:hover .ev-edit-icon { display: inline; }
-
-    /* Brand edit icon — blue tint */
-    .ev-brand-icon { opacity: 0.7; filter: hue-rotate(200deg); }
-    .ev-brand-icon:hover { opacity: 1; }
-
-    /* AM edit icon — neutral grey */
-    .ev-am-icon { opacity: 0.5; }
-    .ev-am-icon:hover { opacity: 0.9; }
-
-    /* --- Edit mode --- */
-    .ev-edit-row {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .ev-input {
-      border: 1px solid #aaa;
-      border-radius: 3px;
-      padding: 3px 6px;
-      font-size: inherit;
-      font-family: inherit;
-      width: 100%;
-      max-width: 180px;
-      outline: none;
-    }
-
-    /* Brand input — bold text, blue focus ring */
-    .ev-input-brand {
-      font-weight: 700;
-      border-color: #0073bb;
-    }
-    .ev-input-brand:focus {
-      border-color: #0073bb;
-      box-shadow: 0 0 0 2px rgba(0, 115, 187, 0.2);
-    }
-
-    /* AM input — regular text, grey focus ring */
-    .ev-input-am {
-      font-weight: 400;
-      border-color: #999;
-    }
-    .ev-input-am:focus {
-      border-color: #666;
-      box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.15);
-    }
-
-    /* --- Save buttons --- */
-    .ev-save, .ev-cancel {
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 13px;
-      padding: 3px 7px;
-      line-height: 1;
-    }
-    .ev-save-brand { background: #0073bb; color: white; }
-    .ev-save-brand:hover { background: #005d99; }
-    .ev-save-am { background: #555; color: white; }
-    .ev-save-am:hover { background: #333; }
-    .ev-cancel { background: #f0f0f0; color: #555; }
-    .ev-cancel:hover { background: #ddd; }
-
-    /* --- Toast notifications --- */
-    #ev-toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 13px;
-      z-index: 99999;
-      display: none;
-      color: white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-    .ev-toast-show { display: block !important; animation: evFadeIn 0.3s ease; }
-    .ev-toast-brand { background: #0073bb; }
-    .ev-toast-am { background: #555; }
-
-    @keyframes evFadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
+  var style = document.createElement('style');
+  style.textContent = '.ev-cell{position:relative}' +
+    '.ev-brand-text{font-weight:700;color:#0f1111}' +
+    '.ev-am-text{font-weight:400;color:#333}' +
+    '.ev-edit-icon{display:none;font-size:12px;cursor:pointer;margin-left:6px;transition:opacity 0.2s}' +
+    '.ev-cell:hover .ev-edit-icon{display:inline}' +
+    '.ev-brand-icon{opacity:0.7}' +
+    '.ev-brand-icon:hover{opacity:1}' +
+    '.ev-am-icon{opacity:0.5}' +
+    '.ev-am-icon:hover{opacity:0.9}' +
+    '.ev-edit-row{display:flex;align-items:center;gap:4px}' +
+    '.ev-input{border:1px solid #aaa;border-radius:3px;padding:3px 6px;font-size:inherit;font-family:inherit;width:100%;max-width:180px;outline:none}' +
+    '.ev-input-brand{font-weight:700;border-color:#0073bb}' +
+    '.ev-input-brand:focus{border-color:#0073bb;box-shadow:0 0 0 2px rgba(0,115,187,0.2)}' +
+    '.ev-input-am{font-weight:400;border-color:#999}' +
+    '.ev-input-am:focus{border-color:#666;box-shadow:0 0 0 2px rgba(100,100,100,0.15)}' +
+    '.ev-save,.ev-cancel{border:none;border-radius:3px;cursor:pointer;font-size:13px;padding:3px 7px;line-height:1}' +
+    '.ev-save-brand{background:#0073bb;color:white}' +
+    '.ev-save-brand:hover{background:#005d99}' +
+    '.ev-save-am{background:#555;color:white}' +
+    '.ev-save-am:hover{background:#333}' +
+    '.ev-cancel{background:#f0f0f0;color:#555}' +
+    '.ev-cancel:hover{background:#ddd}' +
+    '#ev-toast{position:fixed;bottom:20px;right:20px;padding:10px 20px;border-radius:6px;font-size:13px;z-index:99999;display:none;color:white;box-shadow:0 2px 8px rgba(0,0,0,0.15)}' +
+    '.ev-toast-show{display:block!important;animation:evFadeIn 0.3s ease}' +
+    '.ev-toast-brand{background:#0073bb}' +
+    '.ev-toast-am{background:#555}' +
+    '@keyframes evFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}';
   document.head.appendChild(style);
 })();
-
-
 </script>
+
+
+
+
 
 
 
