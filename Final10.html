@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HVE Campaign Tracker - Amazon Ads</title>
 <style>
-  
+
 .eb-ic{display:none;cursor:pointer;font-size:11px;opacity:0.4;margin-left:4px}
 .bn:hover .eb-ic,.bc:hover .eb-ic{display:inline}
 .eb-ic:hover{opacity:1}
@@ -169,6 +169,7 @@ function gD(){var d;try{d=JSON.parse(localStorage.getItem('hve18'))}catch(e){d=n
 function seed(){return[]}
 function gE(){return gD().events[CE]||null}
 function gB(){var e=gE();return e?e.brands:[]}
+function dW(){return{participation:'Pending Confirmation',followup:0,sourcing:'Pending',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No'}}
 
 function dW(){return{participation:'Pending Confirmation',followup:0,sourcing:'Pending',setup:'Not Raised',setupBy:'',tagging:'Pending',tagBy:'',qaDone:'No',confirmedAt:null,sourcedAt:null,setupDoneAt:null,taggedAt:null}}
 
@@ -338,7 +339,7 @@ function applyF(col){var fd=document.getElementById('FD');if(!fd)return;var cbs=
 function renderAFP(){var h='';Object.keys(FLT).forEach(function(col){var lbl=col.replace('preArt.','Pre-ART ').replace('art.','ART ');h+='<span class="fc">'+lbl+': '+FLT[col].join(', ')+' <span class="x" onclick="clearF(\''+col+'\')">x</span></span>'});document.getElementById('AFP').innerHTML=h}
 document.addEventListener('click',function(){closeFilter()});
 
-function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search brands..." oninput="rT()">';h+='<button class="bt '+(HP?'bd':'bo')+'" onclick="toggleHP()">'+(HP?'Show Pre-ART':'Hide Pre-ART')+'</button>';if(R==='manager'){h+='<button class="bt bg" onclick="showAdd()">+ Add</button><button class="bt bo" onclick="showImp()">Import CSV</button>';}else if(Object.keys(gD().events).length>1){h+='<button class="bt bo" onclick="clonePOC()">Copy from Previous</button>';}h+='<button class="bt bo" onclick="dlCSV()">Export</button>'';if(Object.keys(FLT).length)h+='<button class="bt bd" onclick="clearAll()">Clear Filters</button>';document.getElementById('TBR').innerHTML=h}
+function rTB(){var h='<input type="text" id="FS" placeholder="&#128269; Search brands..." oninput="rT()">';h+='<button class="bt '+(HP?'bd':'bo')+'" onclick="toggleHP()">'+(HP?'Show Pre-ART':'Hide Pre-ART')+'</button>';if(R==='manager'){h+='<button class="bt bg" onclick="showAdd()">+ Add</button><button class="bt bo" onclick="showImp()">Import CSV</button>';}else if(Object.keys(gD().events).length>1){h+='<button class="bt bo" onclick="clonePOC()">Copy from Previous</button>';}h+='<button class="bt bo" onclick="dlCSV()">Export</button>';if(SEL.length)h+='<button class="bt bd" onclick="delSelected()">Delete Selected</button>';if(Object.keys(FLT).length)h+='<button class="bt bd" onclick="clearAll()">Clear Filters</button>';document.getElementById('TBR').innerHTML=h}
 
 
 function clearAll(){FLT={};rT();renderAFP()}
