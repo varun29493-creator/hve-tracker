@@ -360,7 +360,10 @@ var statBr=R==='manager'?all:all.filter(function(b){return b.poc===U});
 document.getElementById('SB').innerHTML='<span><b>'+statBr.length+'</b> total</span><span><b>'+statBr.filter(function(b){return b.preArt.participation==='Confirmed'}).length+'</b> Pre-ART</span><span><b>'+statBr.filter(function(b){return b.art.participation==='Confirmed'}).length+'</b> ART</span><span>Showing: <b>'+br.length+'</b></span>';
 
 
-if(SEL.length&&R==='manager'){document.getElementById('BB').classList.remove('hid');document.getElementById('BC').textContent=SEL.length+' selected';document.getElementById('BB_EDIT').innerHTML='<button class="bt" style="background:#0073bb;color:#fff" onclick="showEditBrand()">Edit Brand</button><button class="bt" style="background:#555;color:#fff;margin-left:4px" onclick="showEditAM()">Edit AM</button>'}
+
+if(SEL.length){document.getElementById('BB').classList.remove('hid');document.getElementById('BC').textContent=SEL.length+' selected';document.getElementById('BB_EDIT').innerHTML='<button class="bt" style="background:#0073bb;color:#fff" onclick="showEditBrand()">Edit Brand</button><button class="bt" style="background:#555;color:#fff;margin-left:4px" onclick="showEditAM()">Edit AM</button>'}
+
+
 
 else document.getElementById('BB').classList.add('hid');
 var fc=function(col){return' <span class="ft" onclick="openFilter(\''+col+'\',event)">&#9660;</span>'};
