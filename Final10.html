@@ -182,7 +182,8 @@ function updateLoginDropdown(){var d=gD();var all=DP.slice();d.pocs.forEach(func
 (function(){
 var d=gD();
 fetch(API_URL+'?action=getConfig').then(function(r){return r.json()}).then(function(res){
-if(res.success&&res.config&&res.config.pocs){d.pocs=res.config.pocs;localStorage.setItem('hve18',JSON.stringify(d))}
+
+if(res.success&&res.config){if(res.config.pocs){d.pocs=res.config.pocs}if(res.config.events){Object.keys(res.config.events).forEach(function(k){if(!d.events[k]){d.events[k]={preArtDate:res.config.events[k].preArtDate||'',artDate:res.config.events[k].artDate||'',brands:[]}}else{d.events[k].preArtDate=res.config.events[k].preArtDate||d.events[k].preArtDate;d.events[k].artDate=res.config.events[k].artDate||d.events[k].artDate}})}localStorage.setItem('hve18',JSON.stringify(d));popEv()}
 updateLoginDropdown();
 }).catch(function(){updateLoginDropdown()});
 
